@@ -4,10 +4,12 @@ mod builder;
 mod camera;
 mod model;
 mod navigation;
+mod ui;
 
 pub use builder::*;
 pub use model::*;
 pub use navigation::*;
+pub use ui::*;
 
 use self::{camera::in_game_camera_system, navigation::NavigationPlugin};
 
@@ -25,10 +27,13 @@ impl Plugin for CorePlugin {
         app.add_state::<AppState>();
 
         app.add_plugins(NavigationPlugin);
-
+        
+        app.add_plugins(UiMaterialPlugin::<BeeMaterial>::default());
         app.add_plugins(Material2dPlugin::<BeeMaterial>::default());
-        app.add_systems(PreUpdate, update_bee_material_system);
 
+        app.add_plugins(UIPlugin);
+        app.add_systems(PreUpdate, update_bee_material_system);
+        
         app.add_systems(
             Update,
             in_game_camera_system.run_if(in_state(AppState::InGame)),

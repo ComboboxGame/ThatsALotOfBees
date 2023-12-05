@@ -3,6 +3,8 @@ use bevy::render::render_asset::RenderAssets;
 use bevy::render::render_resource::{AsBindGroup, AsBindGroupShaderType, ShaderRef, ShaderType};
 use bevy::sprite::{Material2d, Mesh2dPipeline};
 
+use super::BeeKind;
+
 #[derive(AsBindGroup, Debug, Clone, Reflect, Asset)]
 #[uniform(0, BeeMaterialUniform)]
 pub struct BeeMaterial {
@@ -14,7 +16,7 @@ pub struct BeeMaterial {
     #[texture(1)]
     #[sampler(2)]
     pub texture: Option<Handle<Image>>,
-}
+} 
 
 impl Default for BeeMaterial {
     fn default() -> Self {
@@ -24,6 +26,18 @@ impl Default for BeeMaterial {
             overlay_kind: 0,
             overlay_level: 0,
             texture: None,
+        }
+    }
+}
+
+impl From<BeeKind> for BeeMaterial {
+    fn from(kind: BeeKind) -> Self {
+        let (shape, overlay_kind, overlay_level) = get_shape_kind_level(kind);
+        Self {
+            shape,
+            overlay_kind,
+            overlay_level,
+            ..Default::default()
         }
     }
 }
@@ -76,4 +90,27 @@ impl Material2d for BeeMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders\\bee.wgsl".into()
     }
+}
+
+impl UiMaterial for BeeMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders\\bee_ui.wgsl".into()
+    }
+}
+
+pub fn get_shape_kind_level(kind: BeeKind) -> (u32, u32, u32) {
+    (
+        match kind {
+            BeeKind::Baby => 1,
+            BeeKind::Queen => 2,
+            _ => 0,
+        },
+        match kind {
+            BeeKind::Worker => 1,
+            BeeKind::Defender => 2,
+            BeeKind::Builder => 3,
+            _ => 0,
+        },
+        0
+    )
 }
