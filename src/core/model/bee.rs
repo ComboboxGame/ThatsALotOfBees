@@ -1,3 +1,4 @@
+use super::{get_shape_kind_level, BeeMaterial};
 use bevy::{
     asset::{AssetServer, Assets, Handle},
     ecs::{
@@ -16,10 +17,9 @@ use bevy::{
     window::CursorMoved,
 };
 use rand::{thread_rng, Rng};
+use strum_macros::EnumIter;
 
-use super::BeeMaterial;
-
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Default, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Default, Debug, EnumIter)]
 pub enum BeeKind {
     #[default]
     Baby,
@@ -55,21 +55,7 @@ pub fn update_bee_material_system(
     }
 
     let mut find_material = |kind: BeeKind| -> Handle<BeeMaterial> {
-        let shape = match kind {
-            BeeKind::Baby => 1,
-            BeeKind::Queen => 2,
-            _ => 0,
-        };
-
-        let overlay_kind = match kind {
-            BeeKind::Worker => 1,
-            BeeKind::Defender => 2,
-            BeeKind::Builder => 3,
-            _ => 0,
-        };
-
-        let overlay_level = 0;
-
+        let (shape, overlay_kind, overlay_level) = get_shape_kind_level(kind);
         let key =
             shape + overlay_kind * 8 + overlay_level * 64 + thread_rng().gen_range(0..4) * 2048;
         match materials_table.entry(key) {
