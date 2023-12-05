@@ -2,11 +2,11 @@ use std::ops::Deref;
 
 use bevy::prelude::*;
 
-use crate::utils::dist_to_segment;
+use crate::{core::Velocity, utils::dist_to_segment};
 
 use super::{HiveGraph, HIVE_GRAPH_RADIUS};
 
-const NEXT_PATH_POINT_MIN_DISTANCE: f32 = 4.0;
+const REACH_DISTANCE: f32 = 4.0;
 
 #[derive(Component)]
 pub enum NavigationTarget {
@@ -60,8 +60,14 @@ pub fn navigation_system(
         match target {
             NavigationTarget::None => {
                 result = NavigationResult::default();
+                result.target_reached = true;
             }
             NavigationTarget::Position(to) => 'position: {
+                if from.distance(*to) < REACH_DISTANCE || result.target_reached {
+                    result.target_reached = true;
+                    break 'position;
+                }
+
                 if dist_to_segment(from, *to, Vec2::ZERO) > HIVE_GRAPH_RADIUS * 0.9
                     || from.length() > HIVE_GRAPH_RADIUS * 2.0
                 {
@@ -71,7 +77,7 @@ pub fn navigation_system(
                 }
 
                 if let Some((next, last)) = result.next_and_last {
-                    if graph.points[next].distance(from) < NEXT_PATH_POINT_MIN_DISTANCE {
+                    if graph.points[next].distance(from) < REACH_DISTANCE {
                         if next == last {
                             result.next_and_last = None;
                             result.next_path_point = Some(*to);
@@ -106,5 +112,22 @@ pub fn navigation_system(
         } else {
             commands.entity(e).insert(result);
         }
+    }
+}
+
+#[derive(Component)]
+pub struct MoveToNavigationTargetBehaviour;
+
+pub fn navigation_movement_system(
+    mut agents: Query<
+        (&mut Velocity, &Transform, &NavigationResult),
+        With<MoveToNavigationTargetBehaviour>,
+    >,
+) {
+    for (mut velocity, transform, result) in agents.iter_mut() {
+        velocity.value = velocity.value.lerp(
+            result.get_direction(transform.translation.truncate()) * 64.0,
+            0.03,
+        );
     }
 }

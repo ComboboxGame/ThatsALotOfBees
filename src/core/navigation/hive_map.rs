@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
-const HIVE_WORLD_SIZE: f32 = 320.0;
-const HIVE_IMAGE_SIZE: usize = 160;
+use crate::core::{HIVE_IMAGE_SIZE, HIVE_WORLD_SIZE};
+
 const HIVE_MAP_SIZE: usize = 80;
 
 const ALLOWED_COLORS: [(u8, u8, u8, u8); 3] =

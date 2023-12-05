@@ -3,6 +3,7 @@ use bevy::prelude::*;
 mod hive_graph;
 mod hive_map;
 mod navigation_target;
+mod precomputed;
 
 pub use hive_graph::*;
 pub use hive_map::*;
@@ -16,5 +17,7 @@ impl Plugin for NavigationPlugin {
         app.init_resource::<HiveGraph>();
         app.add_systems(PreUpdate, build_hive_map_system);
         app.add_systems(PreUpdate, build_hive_graph_system);
+        app.add_systems(Update, navigation_system);
+        app.add_systems(Update, navigation_movement_system.after(navigation_system));
     }
 }

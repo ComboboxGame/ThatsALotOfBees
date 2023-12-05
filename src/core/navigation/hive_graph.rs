@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 use delaunator::{triangulate, Point};
 use rand::{rngs::StdRng, Rng, SeedableRng};
+use serde::{Deserialize, Serialize};
 
-use crate::utils::{cross2d, dist_to_segment};
-
-use super::hive_map::*;
+use super::{hive_map::*, precomputed::DISTANCES};
+use std::io::Write;
 
 pub const HIVE_GRAPH_POINTS_NUMBER: usize = 512;
 pub const HIVE_GRAPH_RADIUS: f32 = 180.0;
@@ -73,13 +73,15 @@ pub fn build_hive_graph_system(
 
     hive_graph.ready = true;
 
+    let mut rng = StdRng::seed_from_u64(1);
+
     while hive_graph.points.len() < HIVE_GRAPH_POINTS_NUMBER {
         let mut furthest_point = Vec2::ZERO;
         let mut furthest_point_dist = 0.0;
 
         for _ in 0..48 {
-            let x = rand::thread_rng().gen_range(-HIVE_GRAPH_RADIUS..HIVE_GRAPH_RADIUS);
-            let y = rand::thread_rng().gen_range(-HIVE_GRAPH_RADIUS..HIVE_GRAPH_RADIUS);
+            let x = rng.gen_range(-HIVE_GRAPH_RADIUS..HIVE_GRAPH_RADIUS);
+            let y = rng.gen_range(-HIVE_GRAPH_RADIUS..HIVE_GRAPH_RADIUS);
             if x * x + y * y >= HIVE_GRAPH_RADIUS.powi(2) {
                 continue;
             }
@@ -90,10 +92,6 @@ pub fn build_hive_graph_system(
             for other_point in &hive_graph.points {
                 closest_dist = closest_dist.min(Vec2::new(x, y).distance(*other_point));
             }
-
-            //let dst = (x*x + y*y).sqrt();
-            //let coefficient = 1.0 / (1.0 + ((dst - HIVE_GRAPH_INNER_RADIUS).max(0.0) / (HIVE_GRAPH_RADIUS - HIVE_GRAPH_INNER_RADIUS)).powf(1.5));
-            //closest_dist = closest_dist * coefficient;
 
             if closest_dist > furthest_point_dist {
                 furthest_point_dist = closest_dist;
@@ -161,7 +159,9 @@ pub fn build_hive_graph_system(
         }
     }
 
-    let mut distance = vec![];
+    let distance = &DISTANCES;
+
+    /*let mut distance = vec![];
     for _ in 0..HIVE_GRAPH_POINTS_NUMBER {
         distance.push(vec![1e9; HIVE_GRAPH_POINTS_NUMBER]);
     }
@@ -171,10 +171,10 @@ pub fn build_hive_graph_system(
         for j in hive_graph.adjacent_points[i].iter() {
             distance[i][*j] = points[i].distance(points[*j]);
         }
-    }
+    }*/
 
     //let distance_ptr: *mut Vec<Vec<f32>> = &mut distance;
-    for k in 0..HIVE_GRAPH_POINTS_NUMBER {
+    /*for k in 0..HIVE_GRAPH_POINTS_NUMBER {
         /*
         bevy::tasks::ComputeTaskPool::get().scope(|scope| {
             for f in 0..16 {
@@ -205,7 +205,21 @@ pub fn build_hive_graph_system(
                 }
             }
         }
-    }
+    }*/
+
+    /*let mut file: std::fs::File = std::fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .open("my-file")
+        .unwrap();
+
+    for i in 0..HIVE_GRAPH_POINTS_NUMBER {
+        write!(file, "vec![");
+        for j in 0..HIVE_GRAPH_POINTS_NUMBER {
+            write!(file, "{},", distance[i][j]);
+        }
+        writeln!(file, "],");
+    }*/
 
     /*for k in 0..HIVE_GRAPH_POINTS_NUMBER {
     }
@@ -219,7 +233,7 @@ pub fn build_hive_graph_system(
                     nearest_point = *k;
                 }
             }
-            
+
             let diff = (distance[i][nearest_point] + distance[nearest_point][j]) - distance[i][j];
             if diff.abs() > 0.001 {
                 println!("Omg diff: {}-{}-{}    {}", i, nearest_point, j, diff);
@@ -243,17 +257,23 @@ pub fn build_hive_graph_system(
                 let mut nearest_point = hive_graph.adjacent_points[i][0];
                 let mut nearest_point_next = hive_graph.adjacent_points[i][1];
 
-                if distance[i][nearest_point] + distance[nearest_point][f] > distance[i][nearest_point_next] + distance[nearest_point_next][f] {
+                if distance[i][nearest_point] + distance[nearest_point][f]
+                    > distance[i][nearest_point_next] + distance[nearest_point_next][f]
+                {
                     let tmp = nearest_point;
                     nearest_point = nearest_point_next;
                     nearest_point_next = tmp;
                 }
 
                 for j in hive_graph.adjacent_points[i].iter() {
-                    if distance[i][*j] + distance[*j][f] < distance[i][nearest_point] + distance[nearest_point][f] {
+                    if distance[i][*j] + distance[*j][f]
+                        < distance[i][nearest_point] + distance[nearest_point][f]
+                    {
                         nearest_point_next = nearest_point;
                         nearest_point = *j;
-                    } else if distance[i][*j] + distance[*j][f] < distance[i][nearest_point_next] + distance[nearest_point_next][f] {
+                    } else if distance[i][*j] + distance[*j][f]
+                        < distance[i][nearest_point_next] + distance[nearest_point_next][f]
+                    {
                         nearest_point_next = *j;
                     }
                     /*if distance[i][*j] + distance[*j][f] < distance[i][nearest_point] + distance[nearest_point][f]
@@ -276,5 +296,5 @@ pub fn build_hive_graph_system(
 
     hive_graph.rng = Some(StdRng::seed_from_u64(0));
 
-    hive_graph.distances = distance;
+    //hive_graph.distances = distance;
 }

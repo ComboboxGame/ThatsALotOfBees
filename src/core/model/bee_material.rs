@@ -16,7 +16,7 @@ pub struct BeeMaterial {
     #[texture(1)]
     #[sampler(2)]
     pub texture: Option<Handle<Image>>,
-} 
+}
 
 impl Default for BeeMaterial {
     fn default() -> Self {
@@ -37,15 +37,6 @@ impl From<BeeKind> for BeeMaterial {
             shape,
             overlay_kind,
             overlay_level,
-            ..Default::default()
-        }
-    }
-}
-
-impl From<Handle<Image>> for BeeMaterial {
-    fn from(texture: Handle<Image>) -> Self {
-        BeeMaterial {
-            //texture: Some(texture),
             ..Default::default()
         }
     }
@@ -111,6 +102,6 @@ pub fn get_shape_kind_level(kind: BeeKind) -> (u32, u32, u32) {
             BeeKind::Builder => 3,
             _ => 0,
         },
-        0
+        0,
     )
 }
