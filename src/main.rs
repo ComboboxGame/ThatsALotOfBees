@@ -1,9 +1,13 @@
-use core::{spawn_hive_visual, AppState, Bee, BeeKind, CorePlugin, HiveMap};
+use core::{
+    spawn_hive_visual, AppState, Bee, BeeKind, CorePlugin, HiveGraph, HiveMap, NavigationTarget,
+    Velocity, VelocityOriented, MoveToNavigationTargetBehaviour,
+};
 
 use bevy::{
     prelude::*,
     render::mesh::shape::Quad,
     sprite::{MaterialMesh2dBundle, Mesh2d, Mesh2dHandle},
+    utils::petgraph::visit::EdgeRef,
 };
 use rand::Rng;
 
@@ -55,15 +59,32 @@ fn spawn_bees(
     mut meshes: ResMut<Assets<Mesh>>,
     mut done: Local<bool>,
     map: Res<HiveMap>,
-    time: Res<Time>,
+    graph: Res<HiveGraph>,
+    mut gizmos: Gizmos,
+    mut bees: Query<(&Transform, &mut Velocity, &mut NavigationTarget)>,
 ) {
+    for (transform, mut velocity, mut target) in bees.iter_mut() {
+        let cur_pos = transform.translation.truncate();
+        if let NavigationTarget::Position(pos) = *target {
+
+            if pos.distance(cur_pos) < 16.0 || map.get_obstruction(pos) > 0.0
+            {
+                let x2 = rand::thread_rng().gen_range(-250.0..250.0);
+                let y2 = rand::thread_rng().gen_range(-250.0..250.0);
+                *target = NavigationTarget::Position(Vec2::new(x2, y2));
+            }
+        }
+    }
+
     if *done || !map.ready {
         return;
     }
 
-    for i in 0..16 {
-        let x = rand::thread_rng().gen_range(-200.0..200.0);
-        let y = rand::thread_rng().gen_range(-200.0..200.0);
+    for _ in 0..64 {
+        let x = rand::thread_rng().gen_range(-250.0..250.0);
+        let y = rand::thread_rng().gen_range(-250.0..250.0);
+        let x2 = rand::thread_rng().gen_range(-150.0..150.0);
+        let y2 = rand::thread_rng().gen_range(-150.0..150.0);
         let z = rand::thread_rng().gen_range(-1.0..1.0);
 
         if map.get_obstruction(Vec2::new(x, y)) > 0.3 {
@@ -80,6 +101,10 @@ fn spawn_bees(
                 Transform::from_xyz(x, y, z).with_scale(Vec3::new(-1.0, 1.0, 1.0)),
             ),
             VisibilityBundle::default(),
+            NavigationTarget::Position(Vec2::new(x2, y2)),
+            MoveToNavigationTargetBehaviour,
+            Velocity::default(),
+            VelocityOriented,
         ));
     }
 

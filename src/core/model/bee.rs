@@ -5,7 +5,7 @@ use bevy::{
         component::Component,
         entity::Entity,
         event::EventReader,
-        query::Changed,
+        query::{Changed, With},
         system::{Commands, Local, Query, Res, ResMut},
     },
     input::{mouse::MouseButton, Input},

@@ -6,6 +6,7 @@ mod navigation_target;
 
 pub use hive_graph::*;
 pub use hive_map::*;
+pub use navigation_target::*;
 
 pub struct NavigationPlugin;
 

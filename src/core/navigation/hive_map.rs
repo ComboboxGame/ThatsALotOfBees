@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-const HIVE_WORLD_SIZE: f32 = 256.0;
-const HIVE_IMAGE_SIZE: usize = 128;
-const HIVE_MAP_SIZE: usize = 64;
+const HIVE_WORLD_SIZE: f32 = 320.0;
+const HIVE_IMAGE_SIZE: usize = 160;
+const HIVE_MAP_SIZE: usize = 80;
 
 const ALLOWED_COLORS: [(u8, u8, u8, u8); 3] =
     [(246, 180, 0, 255), (246, 188, 0, 255), (255, 255, 255, 0)];
