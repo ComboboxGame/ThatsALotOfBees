@@ -1,6 +1,15 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Material2dPlugin};
 
-mod physics;
+mod builder;
+mod camera;
+mod model;
+mod navigation;
+
+pub use builder::*;
+pub use model::*;
+pub use navigation::*;
+
+use self::{camera::in_game_camera_system, navigation::NavigationPlugin};
 
 pub struct CorePlugin;
 
@@ -14,5 +23,15 @@ pub enum AppState {
 impl Plugin for CorePlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<AppState>();
+
+        app.add_plugins(NavigationPlugin);
+
+        app.add_plugins(Material2dPlugin::<BeeMaterial>::default());
+        app.add_systems(PreUpdate, update_bee_material_system);
+
+        app.add_systems(
+            Update,
+            in_game_camera_system.run_if(in_state(AppState::InGame)),
+        );
     }
 }

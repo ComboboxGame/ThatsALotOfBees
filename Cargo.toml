@@ -7,3 +7,6 @@ edition = "2021"
 bevy = {version = "0.12.0", features = ["serialize", "file_watcher"]}
 serde = { version = "*" }
 serde_json = { version = "*" }
+bitflags = "2.4"
+rand = "0.8"
+delaunator = "1.0"
