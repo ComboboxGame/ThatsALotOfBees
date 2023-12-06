@@ -3,8 +3,13 @@ name = "bevy-jam-4"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = []
+dev = ["bevy/file_watcher"]
+
+
 [dependencies]
-bevy = {version = "0.12.0", features = ["serialize", "file_watcher"]}
+bevy = {version = "0.12.0", features = ["serialize"]}
 serde = { version = "*" }
 serde_json = { version = "*" }
 strum = "*"

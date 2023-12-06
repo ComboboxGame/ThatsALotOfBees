@@ -1,0 +1,37 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: self-hosted
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Installing wasm
+      run: rustup target install wasm32-unknown-unknown
+    - name: Installing wasm cli
+      run: cargo install -f wasm-bindgen-cli
+    - name: Build
+      run: cargo build --target wasm32-unknown-unknown --release
+    - name: Building wasm
+      run: wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/bevy-jam-4.wasm
+    - name: Push wasm build artifacts to git hub pages branch
+      run: |
+        git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+        git config --global user.email "username@users.noreply.github.com"
+        git clone https://github.com/${{ github.repository }} build
+        cd build
+        git checkout gh-pages
+        del -r .\assets; cp -r ..\assets .\assets 
+        del -r .\index.html; cp ..\index.html .
+        del -r .\out; cp -r ..\out .\out
+        git add .
+        git commit -m "Git hub pages update"
+        git push
