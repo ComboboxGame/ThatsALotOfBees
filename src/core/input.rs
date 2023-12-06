@@ -20,13 +20,16 @@ fn update_mouse_state_system(
     cameras: Query<(&Camera, &Transform)>,
     mut mouse_motion_events: EventReader<CursorMoved>,
 ) {
+    // Only one window and only one camera
     let window = windows.single();
     let camera = cameras.single();
 
     if let Some(e) = mouse_motion_events.read().last() {
         let x = e.position.x - window.width() / 2.0;
         let y = window.height() / 2.0 - e.position.y;
+        let translation = camera.1.translation.truncate();
+        let scale = camera.1.scale.truncate();
         mouse_state.position =
-            Some(camera.1.translation.truncate() + Vec2::new(x, y) * camera.1.scale.truncate());
+            Some(translation + Vec2::new(x, y) * scale);
     }
 }

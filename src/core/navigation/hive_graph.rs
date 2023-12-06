@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 use delaunator::{triangulate, Point};
 use rand::{rngs::StdRng, Rng, SeedableRng};
-use serde::{Deserialize, Serialize};
 
 use super::{hive_map::*, precomputed::DISTANCES};
-use std::io::Write;
 
 pub const HIVE_GRAPH_POINTS_NUMBER: usize = 512;
 pub const HIVE_GRAPH_RADIUS: f32 = 180.0;
@@ -54,15 +52,15 @@ impl HiveGraph {
 pub fn build_hive_graph_system(
     hive_map: Res<HiveMap>,
     mut hive_graph: ResMut<HiveGraph>,
-    mut gizmos: Gizmos,
+    _gizmos: Gizmos,
 ) {
     if hive_graph.ready {
-        for p in &hive_graph.points {
+        for _p in &hive_graph.points {
             //gizmos.circle_2d(*p, 2.0, Color::GREEN);
         }
 
         for i in 0..HIVE_GRAPH_POINTS_NUMBER {
-            for j in hive_graph.adjacent_points[i].iter() {
+            for _j in hive_graph.adjacent_points[i].iter() {
                 //gizmos.line_2d(hive_graph.points[i], hive_graph.points[*j], Color::BLUE);
             }
         }
@@ -106,8 +104,8 @@ pub fn build_hive_graph_system(
 
     hive_graph.adjacent_points.reserve(HIVE_GRAPH_POINTS_NUMBER);
 
-    for i in 0..HIVE_GRAPH_POINTS_NUMBER {
-        let mut adjacent: Vec<usize> = vec![];
+    for _i in 0..HIVE_GRAPH_POINTS_NUMBER {
+        let adjacent: Vec<usize> = vec![];
         hive_graph.adjacent_points.push(adjacent);
     }
 

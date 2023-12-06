@@ -1,4 +1,4 @@
-use bevy::{input::InputPlugin, prelude::*, sprite::Material2dPlugin};
+use bevy::prelude::*;
 
 mod builder;
 mod camera;

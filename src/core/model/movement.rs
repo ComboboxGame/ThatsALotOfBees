@@ -1,10 +1,13 @@
 use bevy::prelude::*;
 
-use crate::core::NavigationResult;
-
 #[derive(Component, Default)]
 pub struct Velocity {
     pub value: Vec2,
+}
+
+#[derive(Component, Default)]
+pub struct MaxSpeed {
+    pub value: f32,
 }
 
 #[derive(Component)]

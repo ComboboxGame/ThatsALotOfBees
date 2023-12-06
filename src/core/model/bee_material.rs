@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::render::render_asset::RenderAssets;
 use bevy::render::render_resource::{AsBindGroup, AsBindGroupShaderType, ShaderRef, ShaderType};
-use bevy::sprite::{Material2d, Mesh2dPipeline};
+use bevy::sprite::Material2d;
 
 use super::BeeKind;
 

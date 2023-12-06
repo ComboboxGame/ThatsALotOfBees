@@ -1,5 +1,6 @@
 mod bee;
 mod bee_material;
+mod behaviours;
 mod hive;
 mod movement;
 
@@ -8,6 +9,8 @@ pub use bee_material::*;
 use bevy::{prelude::*, sprite::Material2dPlugin};
 pub use hive::*;
 pub use movement::*;
+
+use self::behaviours::BehaviourPlugin;
 
 pub struct ModelPlugin;
 
@@ -27,5 +30,7 @@ impl Plugin for ModelPlugin {
                 movement_orientation_system.after(movement_system),
             ),
         );
+
+        app.add_plugins(BehaviourPlugin);
     }
 }

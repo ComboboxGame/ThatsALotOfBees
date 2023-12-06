@@ -1,15 +1,6 @@
-use core::{
-    spawn_hive_visual, AppState, Bee, BeeKind, CorePlugin, HiveGraph, HiveMap,
-    MoveToNavigationTargetBehaviour, NavigationTarget, Velocity, VelocityOriented,
-};
+use core::{spawn_hive_visual, AppState, CorePlugin};
 
-use bevy::{
-    prelude::*,
-    render::mesh::shape::Quad,
-    sprite::{MaterialMesh2dBundle, Mesh2d, Mesh2dHandle},
-    utils::petgraph::visit::EdgeRef,
-};
-use rand::Rng;
+use bevy::prelude::*;
 
 pub mod core;
 pub mod utils;
@@ -24,7 +15,6 @@ fn main() {
 
     if utils::is_local_build() {
         app.add_systems(Startup, setup);
-        app.add_systems(Update, spawn_bees);
     } else {
     }
 

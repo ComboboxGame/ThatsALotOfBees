@@ -35,7 +35,7 @@ impl HiveMap {
 
 pub fn build_hive_map_system(
     mut hive_map: ResMut<HiveMap>,
-    mut asset_server: ResMut<AssetServer>,
+    asset_server: ResMut<AssetServer>,
     images: Res<Assets<Image>>,
     mut image_handle: Local<Handle<Image>>,
 ) {

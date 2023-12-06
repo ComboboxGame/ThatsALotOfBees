@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use bevy::prelude::*;
 
-use crate::{core::Velocity, utils::dist_to_segment};
+use crate::{core::{Velocity, MaxSpeed}, utils::dist_to_segment};
 
 use super::{HiveGraph, HIVE_GRAPH_RADIUS};
 
@@ -31,6 +31,10 @@ impl NavigationResult {
             Vec2::ZERO
         }
     }
+
+    pub fn is_reached(&self) -> bool {
+        self.target_reached
+    }
 }
 
 pub fn navigation_system(
@@ -43,7 +47,7 @@ pub fn navigation_system(
         Option<&mut NavigationResult>,
     )>,
     mut graph: ResMut<HiveGraph>,
-    mut gizmos: Gizmos,
+    _gizmos: Gizmos,
 ) {
     for (e, target, target_changed, transform, maybe_result) in query.iter_mut() {
         let from = transform.translation.truncate();
@@ -120,13 +124,18 @@ pub struct MoveToNavigationTargetBehaviour;
 
 pub fn navigation_movement_system(
     mut agents: Query<
-        (&mut Velocity, &Transform, &NavigationResult),
+        (&MaxSpeed, &mut Velocity, &Transform, &NavigationResult),
         With<MoveToNavigationTargetBehaviour>,
     >,
 ) {
-    for (mut velocity, transform, result) in agents.iter_mut() {
+    for (speed, mut velocity, transform, result) in agents.iter_mut() {
+        if result.target_reached {
+            velocity.value *= 0.98;
+            continue;
+        }
+
         velocity.value = velocity.value.lerp(
-            result.get_direction(transform.translation.truncate()) * 64.0,
+            result.get_direction(transform.translation.truncate()) * speed.value,
             0.03,
         );
     }

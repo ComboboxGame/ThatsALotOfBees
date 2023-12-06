@@ -1,6 +1,10 @@
 use bevy::{prelude::*, render::mesh::shape::Quad, sprite::Mesh2dHandle};
 
-use crate::core::{AppState, MouseState};
+use crate::core::{
+    AppState, MouseState, MoveToNavigationTargetBehaviour, NavigationTarget, Velocity, VelocityOriented,
+};
+
+use super::{Bee, BeeKind};
 
 pub const HIVE_WORLD_SIZE: f32 = 320.0;
 pub const HIVE_IMAGE_SIZE: usize = 160;
@@ -122,6 +126,8 @@ pub fn update_buildings_system(
             } else {
                 Color::rgb_linear(1.0, 1.0, 1.0)
             };
+
+            
 
             if let Some(material) = materials.get_mut(material) {
                 if material.color != color {

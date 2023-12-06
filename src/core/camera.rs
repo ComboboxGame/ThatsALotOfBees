@@ -36,9 +36,9 @@ pub fn in_game_camera_system(
     mut mouse_wheel_events: EventReader<MouseWheel>,
     mouse: Res<Input<MouseButton>>,
     windows: Query<&Window>,
-    time: Res<Time>,
+    _time: Res<Time>,
 ) {
-    let window = windows.single();
+    let _window = windows.single();
 
     // max view height
     const MAX_VIEW_HEIGHT: f32 = 320.0;
