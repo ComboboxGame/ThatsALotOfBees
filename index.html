@@ -1,0 +1,69 @@
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      flex-flow: column;
+      align-items: center;
+      background: black;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    #start-button-wrapper {
+      height: 720px;
+      width: 1280px;
+      display: flex;
+      justify-content: center;
+    }
+
+    #start-button {
+      font-size: 32px;
+      border-radius: 4px;
+      padding: 10px;
+      background: #2c2c2c;
+      height: fit-content;
+      margin: auto;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    #start-button:hover {
+      background: #1b1b1b;
+    }
+
+    h1 {
+      font-size: 72px;
+    }
+
+    canvas {
+      background-color: white;
+    }
+  </style>
+
+  <link rel="preload" href="out/bevy-jam-4_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+  <link rel="modulepreload" href="out/bevy-jam-4.js">
+</head>
+
+<h1>Bdzholi ne gudut</h1>
+
+<div id="start-button-wrapper">
+  <div id="start-button">Start!</div>
+</div>
+
+<script type="module">
+  import init from './out/bevy-jam-4.js'
+
+  document.getElementById('start-button').onclick = function () {
+    document.getElementById('start-button-wrapper').remove();
+    init();
+  };
+
+</script>
+
+</html>
