@@ -29,7 +29,7 @@ fn get_wing_color(uvi: vec2<f32>) -> vec4<f32> {
 }
 
 fn get_overlay_color(uvi: vec2<f32>) -> vec4<f32> {
-    var uv = (uvi + vec2(2.0, 2.0 + f32(material.overlay_kind))) / 8.0;
+    var uv = (uvi + vec2(0.0, 2.0 + f32(material.overlay_kind))) / 8.0;
     return textureSample(texture, texture_sampler, uv);
 }
 
