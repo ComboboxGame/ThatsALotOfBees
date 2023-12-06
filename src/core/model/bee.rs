@@ -1,21 +1,11 @@
+use crate::core::NavigationTarget;
+
 use super::{get_shape_kind_level, BeeMaterial};
 use bevy::{
-    asset::{AssetServer, Assets, Handle},
-    ecs::{
-        component::Component,
-        entity::Entity,
-        event::EventReader,
-        query::Changed,
-        system::{Commands, Local, Query, Res, ResMut},
-    },
-    input::{mouse::MouseButton, Input},
-    math::Vec2,
-    render::texture::Image,
-    time::Time,
-    transform::components::Transform,
+    prelude::*,
     utils::{Entry, HashMap},
-    window::CursorMoved,
 };
+
 use rand::{thread_rng, Rng};
 use strum_macros::EnumIter;
 
@@ -33,7 +23,7 @@ pub enum BeeKind {
 #[derive(Component)]
 pub struct Bee {
     pub kind: BeeKind,
-    pub target: Vec2,
+    pub time_alive: f32,
 }
 
 pub fn update_bee_material_system(
@@ -42,8 +32,7 @@ pub fn update_bee_material_system(
     mut materials: ResMut<Assets<BeeMaterial>>,
     mut materials_table: Local<HashMap<u32, Handle<BeeMaterial>>>,
     mut image_handle: Local<Option<Handle<Image>>>,
-    mut asset_server: ResMut<AssetServer>,
-    mut time_bank: Local<f32>,
+    asset_server: Res<AssetServer>,
     time: Res<Time>,
 ) {
     if image_handle.is_none() {
@@ -70,13 +59,6 @@ pub fn update_bee_material_system(
                 }))
                 .clone(),
         }
-        /*materials.add(BeeMaterial {
-            phase: thread_rng().gen_range(0.0..16.0),
-            shape,
-            overlay_kind,
-            overlay_level,
-            texture: image_handle.clone(),
-        })*/
     };
 
     for (e, bee, maybe_material) in bees.iter_mut() {

@@ -1,12 +1,14 @@
-use bevy::{prelude::*, sprite::Material2dPlugin};
+use bevy::prelude::*;
 
 mod builder;
 mod camera;
+mod input;
 mod model;
 mod navigation;
 mod ui;
 
 pub use builder::*;
+pub use input::*;
 pub use model::*;
 pub use navigation::*;
 pub use ui::*;
@@ -26,14 +28,11 @@ impl Plugin for CorePlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<AppState>();
 
+        app.add_plugins(InputHelperPlugin);
         app.add_plugins(NavigationPlugin);
-        
-        app.add_plugins(UiMaterialPlugin::<BeeMaterial>::default());
-        app.add_plugins(Material2dPlugin::<BeeMaterial>::default());
+        app.add_plugins(UiPlugin);
+        app.add_plugins(ModelPlugin);
 
-        app.add_plugins(UIPlugin);
-        app.add_systems(PreUpdate, update_bee_material_system);
-        
         app.add_systems(
             Update,
             in_game_camera_system.run_if(in_state(AppState::InGame)),
