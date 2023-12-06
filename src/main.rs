@@ -13,10 +13,7 @@ fn main() {
 
     app.add_systems(Startup, camera_setup);
 
-    if utils::is_local_build() {
-        app.add_systems(Startup, setup);
-    } else {
-    }
+    app.add_systems(Startup, setup);
 
     app.run();
 }
