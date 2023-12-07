@@ -1,5 +1,5 @@
 use bevy::{
-    input::mouse::{MouseMotion, MouseWheel},
+    input::mouse::{MouseMotion, MouseWheel, MouseScrollUnit},
     prelude::*,
 };
 
@@ -63,9 +63,12 @@ pub fn in_game_camera_system(
 
     for (camera, mut transform) in cameras.iter_mut() {
         for e in mouse_wheel_events.read() {
-            // todo: resolution dependant
+            // todo: resolution dependant\
+            
+            println!("{:?}", e.unit);
             if target_zoom.unwrap() > 0.05 || e.y < 0.0 {
-                *target_zoom.as_mut().unwrap() /= 1.1f32.powf(e.y);
+                let scroll_amount = if e.unit == MouseScrollUnit::Line { e.y } else {e.y / 16.0 };
+                *target_zoom.as_mut().unwrap() /= 1.1f32.powf(scroll_amount);
             }
         }
 
