@@ -56,6 +56,10 @@ pub fn navigation_system(
     mut gizmos: Gizmos,
     keyboard: Res<Input<KeyCode>>,
 ) {
+    if !graph.ready {
+        return;
+    }
+    
     let seed = (time.elapsed_seconds() * 100.0) as usize;
 
     // todo: parallel??
