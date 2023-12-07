@@ -25,6 +25,10 @@ pub fn movement_system(
     time: Res<Time>,
     map: Res<HiveMap>,
 ) {
+    if !map.ready {
+        return;
+    }
+    
     for (velocity, mut transform, maybe_creature) in agents.iter_mut() {
         if let Some(creature) = maybe_creature {
             if creature.is_dead() {

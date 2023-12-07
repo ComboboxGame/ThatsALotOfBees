@@ -1,4 +1,4 @@
-use core::{spawn_hive_visual, AppState, CorePlugin};
+use crate::core::{spawn_hive_visual, AppState, CorePlugin};
 
 use bevy::{
     prelude::*,

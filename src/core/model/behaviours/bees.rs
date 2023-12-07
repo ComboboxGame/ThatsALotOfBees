@@ -27,6 +27,10 @@ pub fn bee_behaviour_system(
     map: Res<HiveMap>,
     mut rng: Local<Option<StdRng>>,
 ) {
+    if !map.ready {
+        return;
+    }
+    
     if rng.is_none() {
         *rng = Some(StdRng::seed_from_u64(0));
     }

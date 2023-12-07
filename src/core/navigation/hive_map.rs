@@ -19,6 +19,9 @@ impl HiveMap {
     }
 
     pub fn get_obstruction(&self, pos: Vec2) -> f32 {
+        if !self.ready {
+            
+        }
         if pos.x <= -HIVE_WORLD_SIZE / 2.0 || pos.x >= HIVE_WORLD_SIZE / 2.0 {
             return 0.0;
         }
