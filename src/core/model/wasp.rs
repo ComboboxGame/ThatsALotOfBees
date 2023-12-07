@@ -14,9 +14,10 @@ impl From<WaspKind> for LivingCreature {
     fn from(value: WaspKind) -> Self {
         match value {
             WaspKind::Regular => LivingCreature {
-                time_alive: 0.0,
                 health: 10,
                 damage: 1,
+                attack_cooldown: 2.0,
+                ..Default::default()
             },
         }
     }

@@ -28,9 +28,9 @@ fn main() {
     app.add_systems(Startup, camera_setup);
 
     //if utils::is_local_build() {
-        app.add_plugins(FpsPlugin);
-        app.add_systems(Startup, setup);
-        app.world.spawn(Scenario0::default());
+    app.add_plugins(FpsPlugin);
+    app.add_systems(Startup, setup);
+    app.world.spawn(Scenario0::default());
     //} else {
     //}
 

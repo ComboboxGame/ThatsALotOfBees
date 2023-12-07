@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use crate::{
     core::{MaxSpeed, Velocity},
-    utils::dist_to_segment,
+    utils::{dist_to_segment, FlatProvider},
 };
 
 use super::{HiveGraph, HIVE_GRAPH_RADIUS};
@@ -58,12 +58,11 @@ pub fn navigation_system(
 ) {
     let seed = (time.elapsed_seconds() * 100.0) as usize;
 
-
     // todo: parallel??
     query
         .iter_mut()
         .for_each(|(e, target, target_changed, transform, mut result)| {
-            let from = transform.translation.truncate();
+            let from = transform.flat();
             let seed = seed + e.index() as usize;
             if target_changed {
                 *result = NavigationResult::default();
@@ -76,12 +75,11 @@ pub fn navigation_system(
                 }
                 NavigationTarget::Position(to) => 'position: {
                     let to = *to;
-                    if keyboard.pressed(KeyCode::Z) {
+                    if keyboard.pressed(KeyCode::X) {
                         gizmos.line_2d(from, to, Color::PURPLE);
                     }
 
-                    if from.distance_squared(to) < REACH_DISTANCE.powi(2) || result.target_reached
-                    {
+                    if from.distance_squared(to) < REACH_DISTANCE.powi(2) || result.target_reached {
                         result.target_reached = true;
                         break 'position;
                     }
@@ -125,24 +123,23 @@ pub fn navigation_system(
 
                 NavigationTarget::Entity(e, target_distance) => 'entity: {
                     if let Ok(to) = all_entities.get(*e) {
-                        let to = to.translation.truncate();
-                        if keyboard.pressed(KeyCode::Z) {
+                        let to = to.flat();
+                        if keyboard.pressed(KeyCode::C) {
                             gizmos.line_2d(from, to, Color::RED);
                         }
-                        
+
                         let from_to_sqr = from.distance_squared(to);
 
                         let should_refresh = if from_to_sqr > 128.0f32.powi(2) {
                             result.time_since_refresh > 1.0 || result.next_path_point == None
-                        } else if from_to_sqr > 64.0f32.powi(2)  {
+                        } else if from_to_sqr > 64.0f32.powi(2) {
                             result.time_since_refresh > 0.5 || result.next_path_point == None
                         } else {
                             result.time_since_refresh > 0.1 || result.next_path_point == None
                         };
 
                         if should_refresh {
-                            if from_to_sqr < (*target_distance * 0.8).powi(2)
-                            {
+                            if from_to_sqr < (*target_distance * 0.8).powi(2) {
                                 result.target_reached = true;
                                 break 'entity;
                             }
@@ -165,7 +162,9 @@ pub fn navigation_system(
                             }
 
                             if let Some((next, last)) = result.next_and_last {
-                                if graph.points[next].distance_squared(from) < REACH_DISTANCE.powi(2) {
+                                if graph.points[next].distance_squared(from)
+                                    < REACH_DISTANCE.powi(2)
+                                {
                                     if next == last {
                                         result.next_and_last = None;
                                         result.next_path_point = Some(to);
@@ -216,9 +215,8 @@ pub fn navigation_movement_system(
             continue;
         }
 
-        velocity.value = velocity.value.lerp(
-            result.get_direction(transform.translation.truncate()) * speed.value,
-            0.03,
-        );
+        velocity.value = velocity
+            .value
+            .lerp(result.get_direction(transform.flat()) * speed.value, 0.03);
     }
 }

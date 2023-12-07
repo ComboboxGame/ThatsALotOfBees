@@ -5,11 +5,11 @@ edition = "2021"
 
 [features]
 default = []
-dev = ["bevy/file_watcher"]
+dev = []
 
 
 [dependencies]
-bevy = {version = "0.12.0", features = ["serialize"]}
+bevy = {version = "0.12.0", features = ["serialize", "file_watcher"]}
 serde = { version = "*" }
 bincode = "1.3.3"
 serde_json = { version = "*" }

@@ -12,18 +12,20 @@ pub const WASP_ATLAS_HANDLE: Handle<Image> = Handle::weak_from_u128(131119298322
 #[derive(Clone, ShaderType, Reflect, Debug)]
 pub struct BeeMaterialUniform {
     pub color: Color,
-    tiles: u32,
-    shape: u32,
-    wing_shape: u32,
-    overlay_x: u32,
-    overlay_y: u32,
-    phase: f32,
+    pub tiles: u32,
+    pub shape: u32,
+    pub wing_shape: u32,
+    pub overlay_x: u32,
+    pub overlay_y: u32,
+    pub phase: f32,
+    pub damage_time: f32,
 }
 
 impl Default for BeeMaterialUniform {
     fn default() -> Self {
         BeeMaterialUniform {
             phase: 0.,
+            damage_time: -1.0,
             shape: 0,
             tiles: 8,
             wing_shape: 0,
@@ -70,6 +72,7 @@ impl From<BeeKind> for BeeMaterial {
                 overlay_x,
                 overlay_y,
                 phase: rand::thread_rng().gen_range(0.0..16.0),
+                damage_time: -1.0,
             },
             texture: Some(BEE_ATLAS_HANDLE),
         }
@@ -95,6 +98,7 @@ impl From<WaspKind> for BeeMaterial {
                 overlay_x,
                 overlay_y,
                 phase: rand::thread_rng().gen_range(0.0..16.0),
+                damage_time: -1.0,
             },
             texture: Some(WASP_ATLAS_HANDLE),
         }

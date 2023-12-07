@@ -1,9 +1,12 @@
 use bevy::{prelude::*, render::mesh::shape::Quad, sprite::Mesh2dHandle};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 
-use crate::core::{
-    BeeKind, Building, BuildingKind, LivingCreature, MaxSpeed, MoveToNavigationTargetBehaviour,
-    NavigationResult, NavigationTarget, Velocity, VelocityOriented,
+use crate::{
+    core::{
+        BeeKind, Building, BuildingKind, LivingCreature, MaxSpeed, MoveToNavigationTargetBehaviour,
+        NavigationResult, NavigationTarget, Velocity, VelocityOriented,
+    },
+    utils::FlatProvider,
 };
 
 #[derive(Component, Default)]
@@ -39,7 +42,7 @@ pub fn nexus_system(
         let babies = bees.iter().filter(|b| **b == BeeKind::Baby).count();
         const MAX_BABIES: usize = 300;
 
-        let cooldown = 2.0 + (babies as f32) / 4.0;
+        let cooldown = 1.0 + (babies as f32) / 4.0;
 
         if babies >= MAX_BABIES {
             nexus.time_bank = 0.0;
@@ -57,7 +60,7 @@ pub fn nexus_system(
             commands.spawn((
                 VisibilityBundle::default(),
                 TransformBundle::from_transform(Transform::from_translation(
-                    transform.translation.truncate().extend(0.0) + Vec3::new(x, y, z),
+                    transform.flat().extend(0.0) + Vec3::new(x, y, z),
                 )),
                 Mesh2dHandle(bee_mesh.clone()),
                 BeeKind::Baby,
@@ -76,7 +79,7 @@ pub fn nexus_system(
             commands.spawn((
                 VisibilityBundle::default(),
                 TransformBundle::from_transform(Transform::from_translation(
-                    transform.translation.truncate().extend(1.0),
+                    transform.flat().extend(1.0),
                 )),
                 Mesh2dHandle(bee_mesh.clone()),
                 BeeKind::Queen,

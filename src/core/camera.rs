@@ -3,6 +3,8 @@ use bevy::{
     prelude::*,
 };
 
+use crate::utils::FlatProvider;
+
 pub const MAX_VIEW_RECT: Rect = Rect {
     min: Vec2::new(-900.0, -500.0),
     max: Vec2::new(900.0, 500.0),
@@ -15,8 +17,8 @@ pub const MAX_VIEW_RECT_SOFT: Rect = Rect {
 fn get_view_rect(camera: &Camera, camera_transform: &Transform) -> Rect {
     let matrix = camera_transform.compute_matrix() * camera.projection_matrix().inverse();
 
-    let max = matrix.project_point3(Vec2::ONE.extend(-1.0)).truncate();
-    let min = matrix.project_point3(Vec2::NEG_ONE.extend(-1.0)).truncate();
+    let max = matrix.project_point3(Vec2::ONE.extend(-1.0)).flat();
+    let min = matrix.project_point3(Vec2::NEG_ONE.extend(-1.0)).flat();
 
     Rect {
         min: min.min(max),
@@ -88,7 +90,7 @@ pub fn in_game_camera_system(
         let view_rect = get_view_rect(camera, &transform);
         let view_size = view_rect.max - view_rect.min;
 
-        let mut pos = transform.translation.truncate();
+        let mut pos = transform.flat();
 
         for e in mouse_motion_events.read() {
             if mouse.pressed(MouseButton::Left) {

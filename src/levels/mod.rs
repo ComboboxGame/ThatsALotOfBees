@@ -33,8 +33,29 @@ pub fn scenario0_system(
 
     scenario.time_elapsed += time.delta_seconds();
 
-    if scenario.time_elapsed > 1.0 && scenario.wave == 0 {
+    if scenario.time_elapsed > 25.0 && scenario.wave == 0 {
         scenario.wave += 1;
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+    }
+    if scenario.time_elapsed > 45.0 && scenario.wave == 1 {
+        scenario.wave += 1;
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+    }
+    if scenario.time_elapsed > 65.0 && scenario.wave == 2 {
+        scenario.wave += 1;
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+    }
+    if scenario.time_elapsed > 100.0 && scenario.wave == 2 {
+        scenario.wave += 1;
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
         spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
     }
 }
