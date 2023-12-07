@@ -17,7 +17,8 @@ fn fragment(
     output_color = output_color * mesh.color;
 #endif
 
-    let step = 0.3;
+    if ((material.flags & COLOR_MATERIAL_FLAGS_TEXTURE_BIT) != 0u) {
+        let step = 0.3;
 
         let uv0 = mesh.uv + mesh.uv_dx * step + mesh.uv_dy * step;
         let uv1 = mesh.uv - mesh.uv_dx * step + mesh.uv_dy * step;
@@ -33,6 +34,7 @@ fn fragment(
                     get_color(uv2, globals.time),
                     get_color(uv3, globals.time))
             );
+    }
 
 #ifdef TONEMAP_IN_SHADER
     output_color = tonemapping::tone_mapping(output_color, view.color_grading);

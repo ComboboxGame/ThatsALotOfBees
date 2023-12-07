@@ -1,4 +1,4 @@
-use crate::core::{Bee, BeeKind, BeeMaterial};
+use crate::core::{BeeKind, BeeMaterial};
 use bevy::prelude::*;
 use strum::IntoEnumIterator;
 
@@ -69,15 +69,13 @@ fn spawn_bee_counter(
             ..default()
         })
         .with_children(|builder| {
-            let mut material: BeeMaterial = kind.into();
-            material.texture = Some(asset_server.load("images/Bee.png"));
             builder.spawn((MaterialNodeBundle::<BeeMaterial> {
                 style: Style {
                     width: Val::Px(60.0),
                     height: Val::Px(60.0),
                     ..default()
                 },
-                material: materials.add(material),
+                material: materials.add(kind.into()),
                 ..MaterialNodeBundle::default()
             },));
             builder
@@ -113,9 +111,9 @@ fn spawn_bee_counter(
         });
 }
 
-pub fn update_counter(bees: Query<&Bee>, mut counters: Query<(&BeeCounter, &mut Text)>) {
+pub fn update_counter(bees: Query<&BeeKind>, mut counters: Query<(&BeeCounter, &mut Text)>) {
     for (counter, mut text) in counters.iter_mut() {
-        let bees_of_kind = bees.iter().filter(|bee| bee.kind == counter.kind).count();
+        let bees_of_kind = bees.iter().filter(|bee| **bee == counter.kind).count();
         text.sections[0].value = bees_of_kind.to_string();
     }
 }

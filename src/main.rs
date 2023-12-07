@@ -1,19 +1,38 @@
 use core::{spawn_hive_visual, AppState, CorePlugin};
 
-use bevy::prelude::*;
+use bevy::{
+    prelude::*,
+    render::texture::{ImageFilterMode, ImageSamplerDescriptor},
+};
+use levels::{LevelsPlugin, Scenario0};
+use utils::FpsPlugin;
 
 pub mod core;
+pub mod levels;
 pub mod utils;
 
 fn main() {
     let mut app = App::new();
 
-    app.add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-        .add_plugins(CorePlugin);
+    app.add_plugins(DefaultPlugins.set(ImagePlugin {
+        default_sampler: ImageSamplerDescriptor {
+            mag_filter: ImageFilterMode::Nearest,
+            min_filter: ImageFilterMode::Nearest,
+            mipmap_filter: ImageFilterMode::Nearest,
+            ..Default::default()
+        },
+    }))
+    .add_plugins(CorePlugin)
+    .add_plugins(LevelsPlugin);
 
     app.add_systems(Startup, camera_setup);
 
-    app.add_systems(Startup, setup);
+    //if utils::is_local_build() {
+        app.add_plugins(FpsPlugin);
+        app.add_systems(Startup, setup);
+        app.world.spawn(Scenario0::default());
+    //} else {
+    //}
 
     app.run();
 }

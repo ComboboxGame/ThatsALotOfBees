@@ -3,12 +3,14 @@ mod bee_material;
 mod behaviours;
 mod hive;
 mod movement;
+mod wasp;
 
 pub use bee::*;
 pub use bee_material::*;
 use bevy::{prelude::*, sprite::Material2dPlugin};
 pub use hive::*;
 pub use movement::*;
+pub use wasp::*;
 
 use self::behaviours::BehaviourPlugin;
 
@@ -21,7 +23,9 @@ impl Plugin for ModelPlugin {
         app.init_resource::<HiveBuildings>();
 
         app.add_systems(PreUpdate, update_bee_material_system);
+        app.add_systems(PreUpdate, update_wasp_material_system);
         app.add_systems(PreUpdate, update_buildings_system);
+        app.add_systems(PreUpdate, prepare_atlases_system);
 
         app.add_systems(
             PostUpdate,

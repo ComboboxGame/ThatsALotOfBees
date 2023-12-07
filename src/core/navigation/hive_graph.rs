@@ -25,14 +25,13 @@ pub struct CrazyWrapper(*mut Vec<Vec<f32>>);
 unsafe impl Send for CrazyWrapper {}
 
 impl HiveGraph {
-    pub fn get_next(&mut self, from: usize, to: usize) -> usize {
-        if let Some(rng) = self.rng.as_mut() {
-            let mut r = rng.gen_range(0.0..1.0);
-            for (next, p) in self.next_points[from][to].iter() {
-                r -= p;
-                if r <= 0.0 {
-                    return *next;
-                }
+    pub fn get_next(&self, from: usize, to: usize, seed: usize) -> usize {
+        // todo: kinda random??
+        let mut r = (((from * 9831 + to * 1583 + seed * 9991) * 73451) % 1000) as f32 / 1000.0;
+        for (next, p) in self.next_points[from][to].iter() {
+            r -= p;
+            if r <= 0.0 {
+                return *next;
             }
         }
         0
@@ -52,16 +51,17 @@ impl HiveGraph {
 pub fn build_hive_graph_system(
     hive_map: Res<HiveMap>,
     mut hive_graph: ResMut<HiveGraph>,
-    _gizmos: Gizmos,
+    mut gizmos: Gizmos,
+    keyboard: Res<Input<KeyCode>>,
 ) {
-    if hive_graph.ready {
-        for _p in &hive_graph.points {
-            //gizmos.circle_2d(*p, 2.0, Color::GREEN);
+    if hive_graph.ready && keyboard.pressed(KeyCode::Z) {
+        for p in &hive_graph.points {
+            gizmos.circle_2d(*p, 2.0, Color::GREEN);
         }
 
         for i in 0..HIVE_GRAPH_POINTS_NUMBER {
-            for _j in hive_graph.adjacent_points[i].iter() {
-                //gizmos.line_2d(hive_graph.points[i], hive_graph.points[*j], Color::BLUE);
+            for j in hive_graph.adjacent_points[i].iter() {
+                gizmos.line_2d(hive_graph.points[i], hive_graph.points[*j], Color::BLUE);
             }
         }
     }
@@ -281,8 +281,8 @@ pub fn build_hive_graph_system(
                 }
 
                 //next_points_local.push((nearest_point, 1.0));
-                next_points_local.push((nearest_point, 0.6));
-                next_points_local.push((nearest_point_next, 0.4));
+                next_points_local.push((nearest_point, 0.7));
+                next_points_local.push((nearest_point_next, 0.3));
             }
 
             next_points.push(next_points_local);

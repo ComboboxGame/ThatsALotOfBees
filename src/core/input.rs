@@ -29,7 +29,6 @@ fn update_mouse_state_system(
         let y = window.height() / 2.0 - e.position.y;
         let translation = camera.1.translation.truncate();
         let scale = camera.1.scale.truncate();
-        mouse_state.position =
-            Some(translation + Vec2::new(x, y) * scale);
+        mouse_state.position = Some(translation + Vec2::new(x, y) * scale);
     }
 }
