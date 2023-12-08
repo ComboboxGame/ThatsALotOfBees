@@ -16,6 +16,8 @@ mod building_menu;
 mod title;
 mod upgrade_menu;
 
+pub use upgrade_menu::order_button_system;
+
 #[derive(Component, Default)]
 pub struct Menu {
     pub focus_building: Option<usize>,

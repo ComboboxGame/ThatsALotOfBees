@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
-use crate::core::ui::{button::spawn_button, constants};
+use crate::core::{ui::{button::spawn_button, constants}, Building};
 
 #[derive(Component)]
-struct OrderButton {
+pub struct OrderButton {
     building_index: usize
 }
 
@@ -49,13 +49,20 @@ pub fn spawn_upgrage_menu(builder: &mut ChildBuilder, building_index: usize) {
         });
 }
 
-fn interaction_system(
+pub fn order_button_system(
     order_interactions: Query<(&Interaction, &OrderButton), Changed<Interaction>>,
+    mut buildings: Query<&mut Building>,
 ) {
-    for (interaction, _button) in order_interactions.iter() {
+    for (interaction, button) in order_interactions.iter() {
         match interaction {
             Interaction::Pressed => {
-                
+                // todo: check resources
+                for mut b in buildings.iter_mut() {
+                    if b.index != button.building_index {
+                        continue;
+                    }
+                    b.order();
+                }
             }
             _ => {}
         }

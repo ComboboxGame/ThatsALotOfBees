@@ -1,7 +1,7 @@
 use self::{
     button::button_hover,
     counter::{setup_bee_counters, update_counter},
-    menu::{menu_update, spawn_menu, Menu},
+    menu::{menu_update, spawn_menu, Menu, order_button_system},
     moving_ui::move_ui,
 };
 use super::{get_building_position, Building, MouseState, UniversalMaterial};
@@ -25,6 +25,8 @@ impl Plugin for UiPlugin {
         app.add_systems(Update, menu_update);
         app.add_systems(Update, move_ui);
         app.add_systems(Update, button_hover);
+
+        app.add_systems(Update, order_button_system);
     }
 }
 
@@ -61,12 +63,20 @@ fn highlight_hive(
     buildings_query: Query<(Entity, &Building, &Handle<ColorMaterial>)>,
     mouse: Res<MouseState>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    mut mouse_pos_when_pressed: Local<Vec2>,
 ) {
     let (interaction, changed, _) = interaction_query.single_mut();
     let mut building_menu = building_menu_query.single_mut();
-    if *interaction == Interaction::Pressed && changed {
-        building_menu.focus_building = None;
-        if let Some(mouse_position) = mouse.position {
+    
+    if let Some(mouse_position) = mouse.position {
+        if *interaction == Interaction::Pressed && changed {
+            // Start waiting for button release
+            *mouse_pos_when_pressed = mouse_position;
+        }
+
+        if *interaction == Interaction::Hovered && changed && mouse_position.distance(*mouse_pos_when_pressed) < 8.0 {
+            // Button released and mouse did not move
+            building_menu.focus_building = None;
             for (_, building, _) in buildings_query.iter() {
                 let building_position = get_building_position(building.index);
                 if mouse_position.distance(building_position) < 32.0 {
@@ -75,21 +85,21 @@ fn highlight_hive(
                 }
             }
         }
-    } else {
-        if let Some(mouse_position) = mouse.position {
-            for (_, building, material) in buildings_query.iter() {
-                let building_position = get_building_position(building.index);
+    }
 
-                let color = if mouse_position.distance(building_position) < 32.0 {
-                    Color::rgb_linear(1.4, 1.4, 1.4)
-                } else {
-                    Color::rgb_linear(1.0, 1.0, 1.0)
-                };
+    if let Some(mouse_position) = mouse.position {
+        for (_, building, material) in buildings_query.iter() {
+            let building_position = get_building_position(building.index);
 
-                if let Some(material) = materials.get_mut(material) {
-                    if material.color != color {
-                        material.color = color;
-                    }
+            let color = if mouse_position.distance(building_position) < 32.0 {
+                Color::rgb_linear(1.4, 1.4, 1.4)
+            } else {
+                Color::rgb_linear(1.0, 1.0, 1.0)
+            };
+
+            if let Some(material) = materials.get_mut(material) {
+                if material.color != color {
+                    material.color = color;
                 }
             }
         }
