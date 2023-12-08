@@ -1,6 +1,6 @@
 use bevy::{prelude::*, render::mesh::shape::Quad, sprite::Mesh2dHandle};
 
-use crate::core::{AppState, MouseState};
+use crate::core::{AppState};
 
 pub const HIVE_WORLD_SIZE: f32 = 320.0;
 pub const HIVE_IMAGE_SIZE: usize = 160;
