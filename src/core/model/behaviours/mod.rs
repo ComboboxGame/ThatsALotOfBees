@@ -1,71 +1,66 @@
 use bevy::prelude::*;
 
-mod baby;
-mod regular;
-mod queen;
+mod bees;
 mod nexus;
+mod wasps;
+mod universal_behaviour;
 
-use baby::*;
-use regular::*;
 use nexus::*;
-use queen::*;
 
-use super::{Bee, BeeKind, Building, BuildingKind};
+pub use universal_behaviour::*;
 
-pub fn bee_system(mut bees: Query<&mut Bee>, time: Res<Time>) {
-    for mut bee in bees.iter_mut() {
-        bee.time_alive += time.delta_seconds();
-    }
-}
+use crate::core::NavigationTarget;
 
-pub fn update_behaviours_system(
+use self::{bees::bee_behaviour_system, wasps::wasp_behaviour_system, universal_behaviour::universal_behaviour_system};
+
+use super::{UniversalMaterial, LivingCreature, RigidBody};
+
+pub fn living_creature_system(
+    mut creatures: Query<(
+        Entity,
+        &mut LivingCreature,
+        Option<&Handle<UniversalMaterial>>,
+        Option<&mut RigidBody>,
+    )>,
+    mut targets: Query<&mut NavigationTarget>,
+    time: Res<Time>,
+    mut materials: ResMut<Assets<UniversalMaterial>>,
     mut commands: Commands,
-    bees: Query<(Entity, &Bee, Option<&BabyBee>, Option<&QueenBee>)>,
-    buildings: Query<(Entity, &Building, Option<&Nexus>)>,
 ) {
-    for (e, bee, is_baby, is_queen) in bees.iter() {
-        match bee.kind {
-            BeeKind::Baby => {
-                if is_baby.is_none() {
-                    commands.entity(e).insert(BabyBee::default());
-                }
-            }
-            BeeKind::Regular => {}
-            BeeKind::Worker => {}
-            BeeKind::Builder => {}
-            BeeKind::Defender => {}
-            BeeKind::Queen => {
-                if is_queen.is_none() {
-                    commands.entity(e).insert(QueenBee::default());
+    for (e, mut creature, maybe_material, maybe_rb) in creatures.iter_mut() {
+        if creature.time_since_last_damage_taken == 0.0 {
+            if let Some(material) = maybe_material {
+                if let Some(material) = materials.get_mut(material) {
+                    material.props.damage_time = time.elapsed_seconds();
                 }
             }
         }
 
-        if is_baby.is_some() && bee.kind != BeeKind::Baby {
-            commands.entity(e).remove::<BabyBee>();
+        if let Some(mut rb) = maybe_rb {
+            rb.velocity += creature.accumulated_push_back * 40.0;
         }
-        if is_queen.is_some() && bee.kind != BeeKind::Queen {
-            commands.entity(e).remove::<QueenBee>();
+
+        creature.accumulated_push_back = Vec2::ZERO;
+
+        creature.time_alive += time.delta_seconds();
+        creature.time_since_last_attack += time.delta_seconds();
+        creature.time_since_last_damage_taken += time.delta_seconds();
+
+        if creature.is_dead() && creature.time_since_last_damage_taken > 0.6 {
+            commands.entity(e).despawn();
         }
     }
 
-    for (e, building, is_nexus) in buildings.iter() {
-        match building.kind {
-            BuildingKind::None => {}
-            BuildingKind::Nexus => {
-                if is_nexus.is_none() {
-                    commands.entity(e).insert(Nexus::default());
+    // Clear targets to dead living creatures
+    for mut target in targets.iter_mut() {
+        if let NavigationTarget::Entity(e, _) = *target {
+            if let Ok((_, creature, _, _)) = creatures.get(e) {
+                if creature.is_dead() {
+                    *target = NavigationTarget::None;
                 }
+            } else {
+                *target = NavigationTarget::None;
             }
-            BuildingKind::Storage => todo!(),
-            BuildingKind::WaxReactor => todo!(),
-            BuildingKind::Armory => todo!(),
-            BuildingKind::Workshop => todo!(),
-            BuildingKind::BuilderAcademy => todo!(),
-        }
-
-        if is_nexus.is_some() && building.kind != BuildingKind::Nexus {
-            commands.entity(e).remove::<Nexus>();
         }
     }
 }
@@ -74,12 +69,10 @@ pub struct BehaviourPlugin;
 
 impl Plugin for BehaviourPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(PreUpdate, update_behaviours_system);
-
-        app.add_systems(Update, bee_system);
-        app.add_systems(Update, baby_bee_system);
-        app.add_systems(Update, queen_bee_system);
-
+        app.add_systems(Update, living_creature_system);
+        app.add_systems(Update, universal_behaviour_system);
+        app.add_systems(Update, bee_behaviour_system);
+        app.add_systems(Update, fight_system);
         app.add_systems(Update, nexus_system);
     }
 }

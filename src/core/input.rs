@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::utils::FlatProvider;
+
 pub struct InputHelperPlugin;
 
 impl Plugin for InputHelperPlugin {
@@ -27,9 +29,8 @@ fn update_mouse_state_system(
     if let Some(e) = mouse_motion_events.read().last() {
         let x = e.position.x - window.width() / 2.0;
         let y = window.height() / 2.0 - e.position.y;
-        let translation = camera.1.translation.truncate();
+        let translation = camera.1.flat();
         let scale = camera.1.scale.truncate();
-        mouse_state.position =
-            Some(translation + Vec2::new(x, y) * scale);
+        mouse_state.position = Some(translation + Vec2::new(x, y) * scale);
     }
 }

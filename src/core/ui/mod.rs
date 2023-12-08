@@ -3,8 +3,7 @@ use self::{
     menu::{menu_update, spawn_menu, Menu}, moving_ui::move_ui, button::button_hover,
 };
 use bevy::prelude::*;
-
-use super::{get_building_position, BeeMaterial, Building, MouseState};
+use super::{get_building_position, Building, MouseState, UniversalMaterial};
 
 mod button;
 mod constants;
@@ -16,7 +15,7 @@ pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_plugins(UiMaterialPlugin::<BeeMaterial>::default());
+        app.add_plugins(UiMaterialPlugin::<UniversalMaterial>::default());
 
         app.add_systems(Startup, setup_ui);
         app.add_systems(Update, update_counter);
@@ -32,7 +31,7 @@ struct MainUiNode {}
 
 fn setup_ui(
     mut commands: Commands,
-    materials: ResMut<Assets<BeeMaterial>>,
+    materials: ResMut<Assets<UniversalMaterial>>,
     mut asset_server: ResMut<AssetServer>,
 ) {
     commands

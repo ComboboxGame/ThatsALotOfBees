@@ -1,10 +1,8 @@
 use bevy::{prelude::*, render::mesh::shape::Quad, sprite::Mesh2dHandle};
 
 use crate::core::{
-    AppState, MouseState, MoveToNavigationTargetBehaviour, NavigationTarget, Velocity, VelocityOriented,
+    AppState, MouseState
 };
-
-use super::{Bee, BeeKind};
 
 pub const HIVE_WORLD_SIZE: f32 = 320.0;
 pub const HIVE_IMAGE_SIZE: usize = 160;
@@ -88,6 +86,8 @@ impl Default for HiveBuildings {
 pub struct Building {
     pub kind: BuildingKind,
     pub index: usize,
+    pub time_bank: f32,
+    pub queen_spawned: bool,
 }
 
 pub fn update_buildings_system(
@@ -118,6 +118,8 @@ pub fn update_buildings_system(
             Building {
                 kind: buildings.buildings[index],
                 index,
+                time_bank: 0.0,
+                queen_spawned: false,
             },
             TransformBundle::from_transform(Transform::from_translation(
                 get_building_position(index).extend(-5.0),

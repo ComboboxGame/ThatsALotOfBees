@@ -1,18 +1,24 @@
-use std::ops::Deref;
-
 use bevy::prelude::*;
 
-use crate::{core::{Velocity, MaxSpeed}, utils::dist_to_segment};
+use crate::{
+    utils::{dist_to_segment, FlatProvider},
+};
 
 use super::{HiveGraph, HIVE_GRAPH_RADIUS};
 
 const REACH_DISTANCE: f32 = 4.0;
 
-#[derive(Component)]
+#[derive(Component, PartialEq, Clone, Copy)]
 pub enum NavigationTarget {
     None,
     Position(Vec2),
-    Entity(Entity),
+    Entity(Entity, f32),
+}
+
+#[derive(Component, PartialEq, Clone)]
+pub enum Faction {
+    Bees,
+    Enemies,
 }
 
 #[derive(Component, Default, Clone)]
@@ -21,6 +27,7 @@ pub struct NavigationResult {
     last_reached: bool,
     next_path_point: Option<Vec2>,
     next_and_last: Option<(usize, usize)>,
+    time_since_refresh: f32,
 }
 
 impl NavigationResult {
@@ -44,99 +51,158 @@ pub fn navigation_system(
         &NavigationTarget,
         Changed<NavigationTarget>,
         &Transform,
-        Option<&mut NavigationResult>,
+        &mut NavigationResult,
     )>,
-    mut graph: ResMut<HiveGraph>,
-    _gizmos: Gizmos,
+    all_entities: Query<&Transform>,
+    graph: Res<HiveGraph>,
+    time: Res<Time>,
+    mut gizmos: Gizmos,
+    keyboard: Res<Input<KeyCode>>,
 ) {
-    for (e, target, target_changed, transform, maybe_result) in query.iter_mut() {
-        let from = transform.translation.truncate();
-        let mut result = maybe_result
-            .as_ref()
-            .map_or(NavigationResult::default(), |r| {
-                if target_changed {
-                    NavigationResult::default()
-                } else {
-                    r.deref().clone()
-                }
-            });
+    if !graph.ready {
+        return;
+    }
 
-        match target {
-            NavigationTarget::None => {
-                result = NavigationResult::default();
-                result.target_reached = true;
+    let seed = (time.elapsed_seconds() * 100.0) as usize;
+
+    // todo: parallel??
+    query
+        .iter_mut()
+        .for_each(|(e, target, target_changed, transform, mut result)| {
+            let from = transform.flat();
+            let seed = seed + e.index() as usize;
+            if target_changed {
+                *result = NavigationResult::default();
             }
-            NavigationTarget::Position(to) => 'position: {
-                if from.distance(*to) < REACH_DISTANCE || result.target_reached {
+
+            match target {
+                NavigationTarget::None => {
+                    *result = NavigationResult::default();
                     result.target_reached = true;
-                    break 'position;
                 }
+                NavigationTarget::Position(to) => 'position: {
+                    let to = *to;
+                    if keyboard.pressed(KeyCode::X) {
+                        gizmos.line_2d(from, to, Color::PURPLE);
+                    }
 
-                if dist_to_segment(from, *to, Vec2::ZERO) > HIVE_GRAPH_RADIUS * 0.9
-                    || from.length() > HIVE_GRAPH_RADIUS * 2.0
-                {
-                    result.next_path_point = Some(*to);
-                    result.next_and_last = None;
-                    break 'position;
-                }
+                    if from.distance_squared(to) < REACH_DISTANCE.powi(2) || result.target_reached {
+                        result.target_reached = true;
+                        break 'position;
+                    }
 
-                if let Some((next, last)) = result.next_and_last {
-                    if graph.points[next].distance(from) < REACH_DISTANCE {
-                        if next == last {
+                    if dist_to_segment(from, to, Vec2::ZERO) > HIVE_GRAPH_RADIUS * 0.9
+                        || from.length() > HIVE_GRAPH_RADIUS * 2.0
+                    {
+                        result.next_path_point = Some(to);
+                        result.next_and_last = None;
+                        break 'position;
+                    }
+
+                    if let Some((next, last)) = result.next_and_last {
+                        if graph.points[next].distance_squared(from) < REACH_DISTANCE.powi(2) {
+                            if next == last {
+                                result.next_and_last = None;
+                                result.next_path_point = Some(to);
+                                result.last_reached = true;
+                            } else {
+                                // assert ? assert!(!result.last_reached);
+                                let new_next = graph.get_next(next, last, seed);
+                                result.next_and_last = Some((new_next, last));
+                                result.next_path_point = Some(graph.points[new_next]);
+                            }
+                        }
+                    } else if !result.last_reached {
+                        let nearest_from = graph.get_nearest(from);
+                        let nearest_to = graph.get_nearest(to);
+
+                        if nearest_from == nearest_to {
                             result.next_and_last = None;
-                            result.next_path_point = Some(*to);
+                            result.next_path_point = Some(to);
                             result.last_reached = true;
                         } else {
-                            // assert ? assert!(!result.last_reached);
-                            let new_next = graph.get_next(next, last);
-                            result.next_and_last = Some((new_next, last));
-                            result.next_path_point = Some(graph.points[new_next]);
+                            let next = graph.get_next(nearest_from, nearest_to, seed);
+                            result.next_and_last = Some((next, nearest_to));
+                            result.next_path_point = Some(graph.points[next]);
                         }
                     }
-                } else if !result.last_reached {
-                    let nearest_from = graph.get_nearest(from);
-                    let nearest_to = graph.get_nearest(*to);
+                }
 
-                    if nearest_from == nearest_to {
-                        result.next_and_last = None;
-                        result.next_path_point = Some(*to);
-                        result.last_reached = true;
-                    } else {
-                        let next = graph.get_next(nearest_from, nearest_to);
-                        result.next_and_last = Some((next, nearest_to));
-                        result.next_path_point = Some(graph.points[next]);
+                NavigationTarget::Entity(e, target_distance) => 'entity: {
+                    if let Ok(to) = all_entities.get(*e) {
+                        let to = to.flat();
+                        if keyboard.pressed(KeyCode::C) {
+                            gizmos.line_2d(from, to, Color::RED);
+                        }
+
+                        let from_to_sqr = from.distance_squared(to);
+
+                        let should_refresh = if from_to_sqr > 128.0f32.powi(2) {
+                            result.time_since_refresh > 1.0 || result.next_path_point == None
+                        } else if from_to_sqr > 64.0f32.powi(2) {
+                            result.time_since_refresh > 0.5 || result.next_path_point == None
+                        } else {
+                            result.time_since_refresh > 0.1 || result.next_path_point == None
+                        };
+
+                        if should_refresh {
+                            if from_to_sqr < (*target_distance * 0.8).powi(2) {
+                                result.target_reached = true;
+                                break 'entity;
+                            }
+
+                            if result.target_reached {
+                                if from_to_sqr > (*target_distance).powi(2) {
+                                    result.target_reached = false;
+                                    result.next_and_last = None;
+                                    result.next_path_point = None;
+                                }
+                                break 'entity;
+                            }
+
+                            if dist_to_segment(from, to, Vec2::ZERO) > HIVE_GRAPH_RADIUS * 0.85
+                                || from.length() > HIVE_GRAPH_RADIUS * 1.5
+                            {
+                                result.next_path_point = Some(to);
+                                result.next_and_last = None;
+                                break 'entity;
+                            }
+
+                            if let Some((next, last)) = result.next_and_last {
+                                if graph.points[next].distance_squared(from)
+                                    < REACH_DISTANCE.powi(2)
+                                {
+                                    if next == last {
+                                        result.next_and_last = None;
+                                        result.next_path_point = Some(to);
+                                        result.last_reached = true;
+                                    } else {
+                                        // assert ? assert!(!result.last_reached);
+                                        let new_last = graph.get_nearest(to);
+                                        let new_next = graph.get_next(next, new_last, seed);
+                                        result.next_and_last = Some((new_next, new_last));
+                                        result.next_path_point = Some(graph.points[new_next]);
+                                    }
+                                }
+                            } else {
+                                let nearest_from = graph.get_nearest(from);
+                                let nearest_to = graph.get_nearest(to);
+
+                                if nearest_from == nearest_to {
+                                    result.next_and_last = None;
+                                    result.next_path_point = Some(to);
+                                    result.last_reached = true;
+                                } else {
+                                    let next = graph.get_next(nearest_from, nearest_to, seed);
+                                    result.next_and_last = Some((next, nearest_to));
+                                    result.next_path_point = Some(graph.points[next]);
+                                }
+                            }
+                        } else {
+                            result.time_since_refresh += time.delta_seconds();
+                        }
                     }
                 }
             }
-            NavigationTarget::Entity(_) => {}
-        }
-
-        if let Some(mut some_result) = maybe_result {
-            *some_result = result;
-        } else {
-            commands.entity(e).insert(result);
-        }
-    }
-}
-
-#[derive(Component)]
-pub struct MoveToNavigationTargetBehaviour;
-
-pub fn navigation_movement_system(
-    mut agents: Query<
-        (&MaxSpeed, &mut Velocity, &Transform, &NavigationResult),
-        With<MoveToNavigationTargetBehaviour>,
-    >,
-) {
-    for (speed, mut velocity, transform, result) in agents.iter_mut() {
-        if result.target_reached {
-            velocity.value *= 0.98;
-            continue;
-        }
-
-        velocity.value = velocity.value.lerp(
-            result.get_direction(transform.translation.truncate()) * speed.value,
-            0.03,
-        );
-    }
+        });
 }
