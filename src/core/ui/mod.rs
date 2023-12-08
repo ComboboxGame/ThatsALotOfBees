@@ -1,6 +1,6 @@
 use self::{
     counter::{setup_bee_counters, update_counter},
-    menu::{menu_update, spawn_menu, Menu}, moving_ui::move_ui, button::button_hover,
+    menu::{menu_update, spawn_menu, Menu}, moving_ui::move_ui, button::button_hover, currency_display::{spawn_currency_display, refresh_display},
 };
 use bevy::prelude::*;
 use super::{get_building_position, Building, MouseState, UniversalMaterial};
@@ -10,6 +10,7 @@ mod constants;
 mod counter;
 mod menu;
 mod moving_ui;
+mod currency_display;
 
 pub struct UiPlugin;
 
@@ -23,6 +24,7 @@ impl Plugin for UiPlugin {
         app.add_systems(Update, menu_update);
         app.add_systems(Update, move_ui);
         app.add_systems(Update, button_hover);
+        app.add_systems(Update, refresh_display);
     }
 }
 
@@ -49,6 +51,7 @@ fn setup_ui(
         ))
         .with_children(|builder| {
             setup_bee_counters(builder, materials, &mut asset_server);
+            spawn_currency_display(builder, &mut asset_server);
             spawn_menu(builder, &mut asset_server);
         });
 }
