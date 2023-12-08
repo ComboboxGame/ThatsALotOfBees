@@ -1,5 +1,6 @@
 mod bee;
 mod behaviours;
+mod currency;
 mod enemy;
 mod buildings;
 mod living_creature;
@@ -8,7 +9,8 @@ mod physcis;
 
 pub use bee::*;
 pub use behaviours::*;
-use bevy::{sprite::Material2dPlugin, render::mesh::shape::Quad};
+use bevy::{prelude::*, sprite::Material2dPlugin, utils::HashMap};
+pub use currency::*;
 pub use enemy::*;
 pub use buildings::*;
 pub use living_creature::*;
@@ -28,6 +30,7 @@ impl Plugin for ModelPlugin {
         app.add_plugins(Material2dPlugin::<UniversalMaterial>::default());
 
         app.init_resource::<HiveBuildings>();
+        app.init_resource::<CurrencyStorage>();
 
         app.add_systems(Startup, create_meshes);
 
@@ -35,6 +38,7 @@ impl Plugin for ModelPlugin {
         app.add_systems(PreUpdate, update_wasp_material_system);
         app.add_systems(PreUpdate, update_buildings_system);
         app.add_systems(PreUpdate, prepare_atlases_system);
+        app.add_systems(PreUpdate, earn_currency);
 
         app.add_systems(Update, living_creature_system);
         app.add_systems(Update, buildings_system);

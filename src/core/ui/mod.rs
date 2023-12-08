@@ -1,7 +1,8 @@
 use self::{
     button::button_hover,
     counter::{setup_bee_counters, update_counter},
-    menu::{menu_update, spawn_menu, Menu, order_button_system},
+    currency_display::{refresh_display, spawn_currency_display},
+    menu::{menu_update, spawn_menu, Menu},
     moving_ui::move_ui,
 };
 use super::{get_building_position, Building, MouseState, UniversalMaterial};
@@ -10,6 +11,7 @@ use bevy::prelude::*;
 mod button;
 mod constants;
 mod counter;
+mod currency_display;
 mod menu;
 mod moving_ui;
 
@@ -25,8 +27,7 @@ impl Plugin for UiPlugin {
         app.add_systems(Update, menu_update);
         app.add_systems(Update, move_ui);
         app.add_systems(Update, button_hover);
-
-        app.add_systems(Update, order_button_system);
+        app.add_systems(Update, refresh_display);
     }
 }
 
@@ -53,6 +54,7 @@ fn setup_ui(
         ))
         .with_children(|builder| {
             setup_bee_counters(builder, materials, &mut asset_server);
+            spawn_currency_display(builder, &mut asset_server);
             spawn_menu(builder, &mut asset_server);
         });
 }
@@ -67,14 +69,17 @@ fn highlight_hive(
 ) {
     let (interaction, changed, _) = interaction_query.single_mut();
     let mut building_menu = building_menu_query.single_mut();
-    
+
     if let Some(mouse_position) = mouse.position {
         if *interaction == Interaction::Pressed && changed {
             // Start waiting for button release
             *mouse_pos_when_pressed = mouse_position;
         }
 
-        if *interaction == Interaction::Hovered && changed && mouse_position.distance(*mouse_pos_when_pressed) < 8.0 {
+        if *interaction == Interaction::Hovered
+            && changed
+            && mouse_position.distance(*mouse_pos_when_pressed) < 8.0
+        {
             // Button released and mouse did not move
             building_menu.focus_building = None;
             for (_, building, _) in buildings_query.iter() {
