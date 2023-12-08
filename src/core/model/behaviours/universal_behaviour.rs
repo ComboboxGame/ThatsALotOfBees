@@ -196,6 +196,10 @@ pub fn universal_behaviour_system(
     }
     let rng = rng.as_mut().unwrap();
 
+    if !map.ready {
+        return;
+    }
+
     for (_e, mut behaviour, creature, transform, faction, mut rb, mut navigation, result) in
         behaviours.iter_mut()
     {
