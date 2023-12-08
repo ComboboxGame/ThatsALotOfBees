@@ -10,16 +10,18 @@ pub struct BeeCounter {
 }
 
 pub fn setup_bee_counters(
-    mut commands: Commands,
+    builder: &mut ChildBuilder,
     mut materials: ResMut<Assets<UniversalMaterial>>,
-    mut asset_server: ResMut<AssetServer>,
+    mut asset_server: &mut AssetServer,
 ) {
-    commands
+    builder
         .spawn(NodeBundle {
             style: Style {
-                flex_direction: FlexDirection::Row,
-                width: Val::Percent(100.),
+                position_type: PositionType::Absolute,
+                flex_direction: FlexDirection::Column,
                 height: Val::Percent(100.),
+                align_items: AlignItems::Start,
+                justify_content: JustifyContent::Center,
                 ..Default::default()
             },
             ..Default::default()
