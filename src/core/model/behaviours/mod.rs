@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 mod bees;
 mod nexus;
-mod wasps;
 mod universal_behaviour;
 
 use nexus::*;
@@ -11,7 +10,7 @@ pub use universal_behaviour::*;
 
 use crate::core::NavigationTarget;
 
-use self::{bees::bee_behaviour_system, wasps::wasp_behaviour_system, universal_behaviour::universal_behaviour_system};
+use self::{bees::baby_behaviour_system, universal_behaviour::universal_behaviour_system};
 
 use super::{UniversalMaterial, LivingCreature, RigidBody};
 
@@ -71,7 +70,7 @@ impl Plugin for BehaviourPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, living_creature_system);
         app.add_systems(Update, universal_behaviour_system);
-        app.add_systems(Update, bee_behaviour_system);
+        app.add_systems(Update, baby_behaviour_system);
         app.add_systems(Update, fight_system);
         app.add_systems(Update, nexus_system);
     }
