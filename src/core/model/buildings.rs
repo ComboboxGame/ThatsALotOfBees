@@ -3,7 +3,7 @@ use rand::{rngs::StdRng, SeedableRng, Rng};
 
 use crate::{core::{AppState, BeeBundle}, utils::FlatProvider};
 
-use super::BeeType;
+use super::{BeeType, UniversalBehaviour, LivingCreature, RigidBody};
 
 pub const HIVE_WORLD_SIZE: f32 = 320.0;
 pub const HIVE_IMAGE_SIZE: usize = 160;
@@ -79,6 +79,8 @@ impl Default for HiveBuildings {
     fn default() -> Self {
         let mut buildings: [BuildingKind; BUILDINGS_NUM] = Default::default();
         buildings[8] = BuildingKind::Nexus;
+        buildings[6] = BuildingKind::Armory;
+        buildings[4] = BuildingKind::Workshop;
         Self { buildings }
     }
 }
@@ -157,6 +159,7 @@ pub fn buildings_system(
     mut buildings: Query<(&mut Building, &Transform)>,
     mut bee_mesh: Local<Handle<Mesh>>,
     mut meshes: ResMut<Assets<Mesh>>,
+    mut bees: Query<(&mut BeeType, &mut UniversalBehaviour, &mut LivingCreature, &mut RigidBody)>,
     time: Res<Time>,
     mut rng: Local<Option<StdRng>>,
 ) {
@@ -203,7 +206,18 @@ pub fn buildings_system(
             },
             BuildingKind::Storage => todo!(),
             BuildingKind::WaxReactor => todo!(),
-            BuildingKind::Armory => todo!(),
+            BuildingKind::Armory => {
+                let mut spawned = false;
+                for (mut bee, mut behaviour, mut creature, mut rb) in bees.iter_mut() {
+                    if *bee == BeeType::Regular {
+                        
+                    }
+                }
+                if !spawned {
+                    // Return order back, waiting when bee will appear
+                    building.orders_count += 1;
+                }
+            },
             BuildingKind::Workshop => todo!(),
             BuildingKind::BuilderAcademy => todo!(),
         }

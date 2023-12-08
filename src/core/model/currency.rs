@@ -15,7 +15,7 @@ impl CurrencyType {
         match self {
             CurrencyType::Honey => "images/Honey.png",
             CurrencyType::Wax => "images/Wax.png",
-            CurrencyType::MagicWax => "images/Wax.png",
+            CurrencyType::MagicWax => "images/MagicWax.png",
         }
     }
 }

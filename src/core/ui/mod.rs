@@ -2,7 +2,7 @@ use self::{
     button::button_hover,
     counter::{setup_bee_counters, update_counter},
     currency_display::{refresh_display, spawn_currency_display},
-    menu::{menu_update, spawn_menu, Menu},
+    menu::{menu_update, spawn_menu, Menu, order_button_system},
     moving_ui::move_ui,
 };
 use super::{get_building_position, Building, MouseState, UniversalMaterial};
@@ -28,6 +28,7 @@ impl Plugin for UiPlugin {
         app.add_systems(Update, move_ui);
         app.add_systems(Update, button_hover);
         app.add_systems(Update, refresh_display);
+        app.add_systems(Update, order_button_system);
     }
 }
 

@@ -31,7 +31,7 @@ pub fn scenario0_system(
 
     let (_, mut scenario) = scenarios.single_mut();
 
-    scenario.time_elapsed += time.delta_seconds();
+    scenario.time_elapsed += time.delta_seconds() / 20.0;
 
     if scenario.time_elapsed > 5.0 && scenario.wave == 0 {
         scenario.wave += 1;
