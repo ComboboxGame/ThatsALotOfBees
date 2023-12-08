@@ -11,6 +11,7 @@ struct BeeMaterial {
     overlay_y: u32,
     phase: f32,
     damage_time: f32,
+    upgrade_time: f32,
 };
 
 const COLOR_MATERIAL_FLAGS_TEXTURE_BIT: u32 = 1u;
@@ -51,6 +52,16 @@ fn get_color(uv: vec2<f32>, time: f32) -> vec4<f32> {
     let intensity2 = max(1.0 - t * 1.5, 0.0);
     color = vec4(color.xyz * (1.0 - intensity * 0.8), color.w) + intensity * vec4(1.0, 0.0, 0.0, 0.0);
     color = mix_colors(color, get_blood_color(uv, intensity2));
+
+    var upgrade_radius = max(time - material.upgrade_time, 0.0);
+    //upgrade_radius = step(upgrade_radius, 0.99) * upgrade_radius;
+
+    let v = (uv - 0.5) * 2.0;
+
+    let d = v.x * v.x + v.y * v.y;
+    if (d < upgrade_radius * upgrade_radius && d > (upgrade_radius - 0.08) * (upgrade_radius - 0.08)) {
+        color = mix_colors(color, vec4(1.0));
+    }
 
     return color;
 }
