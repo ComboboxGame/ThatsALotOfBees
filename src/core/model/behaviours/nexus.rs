@@ -97,3 +97,37 @@ pub fn nexus_system(
         }
     }
 }
+
+
+
+/*
+Baby price - 1 honey
+
+start with 5 honey
+5 honey / min - base rate
+1 honey / min - regular bee production
+
+
+X bees make X bees per minute
+
+
+up to 50 bees - 1 honey per bee
+up to 100 bees - 2 honey per bee
+up to 150 bees - 3 honey per bee
+up to 200 bees - 4 honey per bee
+more - 8 honey per bee
+
+Waves
+1 - 
+2 -
+3 -
+4 -
+5 -
+6 -
+7 -
+8 -
+9 -
+10 -
+
+
+*/

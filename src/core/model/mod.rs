@@ -1,7 +1,7 @@
 mod bee;
 mod behaviours;
 mod enemy;
-mod hive;
+mod buildings;
 mod living_creature;
 mod material;
 mod physcis;
@@ -10,7 +10,7 @@ pub use bee::*;
 pub use behaviours::*;
 use bevy::sprite::Material2dPlugin;
 pub use enemy::*;
-pub use hive::*;
+pub use buildings::*;
 pub use living_creature::*;
 pub use material::*;
 pub use physcis::*;
