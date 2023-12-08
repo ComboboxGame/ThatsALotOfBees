@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{
-    utils::{dist_to_segment, FlatProvider},
-};
+use crate::utils::{dist_to_segment, FlatProvider};
 
 use super::{HiveGraph, HIVE_GRAPH_RADIUS};
 
@@ -45,7 +43,7 @@ impl NavigationResult {
 }
 
 pub fn navigation_system(
-    mut commands: Commands,
+    _commands: Commands,
     mut query: Query<(
         Entity,
         &NavigationTarget,

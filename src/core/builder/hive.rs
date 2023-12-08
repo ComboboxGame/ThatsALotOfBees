@@ -32,7 +32,9 @@ pub fn spawn_hive_visual(
     ));
 
     commands.spawn((
-        materials.add(ColorMaterial::from(asset_server.load("images/Background.png"))),
+        materials.add(ColorMaterial::from(
+            asset_server.load("images/Background.png"),
+        )),
         Mesh2dHandle(meshes.add(Quad::new(Vec2::new(256.0, 128.0)).into())),
         TransformBundle::from_transform(Transform::from_xyz(0., 0., -20.)),
         VisibilityBundle::default(),

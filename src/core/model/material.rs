@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::render::render_asset::RenderAssets;
 use bevy::render::render_resource::{AsBindGroup, AsBindGroupShaderType, ShaderRef, ShaderType};
 use bevy::sprite::Material2d;
-use rand::{thread_rng, Rng};
+use rand::Rng;
 
 use super::{BeeType, EnemyType};
 
@@ -120,7 +120,6 @@ impl From<EnemyType> for UniversalMaterial {
                 texture: Some(BIRB_ATLAS_HANDLE),
             },
         }
-        
     }
 }
 

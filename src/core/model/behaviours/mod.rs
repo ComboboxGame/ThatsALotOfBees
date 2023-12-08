@@ -10,9 +10,9 @@ pub use universal_behaviour::*;
 
 use crate::core::NavigationTarget;
 
-use self::{bees::baby_behaviour_system, universal_behaviour::universal_behaviour_system};
+use self::bees::baby_behaviour_system;
 
-use super::{UniversalMaterial, LivingCreature, RigidBody};
+use super::{LivingCreature, RigidBody, UniversalMaterial};
 
 pub fn living_creature_system(
     mut creatures: Query<(

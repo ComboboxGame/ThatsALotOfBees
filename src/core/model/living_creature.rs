@@ -49,8 +49,9 @@ impl LivingCreature {
             other.time_since_last_damage_taken = 0.0;
             other.accumulated_push_back +=
                 direction.normalize_or_zero() * (self.attack_damage as f32).powf(0.6).min(3.0);
-            self.accumulated_push_back -=
-                direction.normalize_or_zero() * (self.attack_damage as f32).powf(0.4).min(2.0) * 0.8;
+            self.accumulated_push_back -= direction.normalize_or_zero()
+                * (self.attack_damage as f32).powf(0.4).min(2.0)
+                * 0.8;
         }
     }
 }

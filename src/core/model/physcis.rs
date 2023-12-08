@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 
 use crate::{
-    core::{HiveMap, NavigationTarget, NavigationResult},
+    core::{HiveMap, NavigationResult, NavigationTarget},
     utils::FlatProvider,
 };
 
-use super::{LivingCreature, BeeType, EnemyType};
+use super::{BeeType, EnemyType, LivingCreature};
 
 #[derive(Component, Default)]
 pub struct RigidBody {
@@ -113,16 +113,16 @@ pub fn integration_system(
                 // Integrate along y only
                 transform.translation.y = next_pos.y;
                 rb.velocity.x = 0.0;
-                rb.stuck_tick+=1;
+                rb.stuck_tick += 1;
             } else if map.get_obstruction_xy(next_pos.x, current_pos.y) == 0.0 {
                 // Integrate along x only
                 transform.translation.x = next_pos.x;
                 rb.velocity.y = 0.0;
-                rb.stuck_tick+=1;
+                rb.stuck_tick += 1;
             } else {
                 // Corner?
                 rb.velocity = Vec2::ZERO;
-                rb.stuck_tick+=1;
+                rb.stuck_tick += 1;
             }
         }
     }
@@ -132,7 +132,7 @@ pub fn collision_system(
     mut a_rigid_bodies: Query<(&mut RigidBody, &Transform, &LivingCreature), With<BeeType>>,
     mut b_rigid_bodies: Query<(&mut RigidBody, &Transform, &LivingCreature), Without<BeeType>>,
     time: Res<Time>,
-    map: Res<HiveMap>,
+    _map: Res<HiveMap>,
 ) {
     for (mut arb, at, alc) in a_rigid_bodies.iter_mut() {
         if alc.is_dead() {
@@ -165,7 +165,6 @@ pub fn collision_system(
                 arb.velocity -= delta_impulse * ab / m1;
                 brb.velocity += delta_impulse * ab / m2;
             }
-
         }
     }
 }
@@ -178,9 +177,7 @@ pub fn orientation_system(
     transforms: Query<&GlobalTransform, With<LivingCreature>>,
 ) {
     for (rb, mut transform, maybe_target) in agents.iter_mut() {
-        let delta = if let Some(NavigationTarget::Entity(e, target_range)) =
-            maybe_target
-        {
+        let delta = if let Some(NavigationTarget::Entity(e, target_range)) = maybe_target {
             if let Ok(t) = transforms.get(*e) {
                 if t.flat().distance_squared(transform.flat()) < (target_range * 2.5).powi(2) {
                     t.flat() - transform.flat()

@@ -48,7 +48,7 @@ pub fn setup_bee_counters(
 fn spawn_bee_counter(
     builder: &mut ChildBuilder,
     kind: BeeType,
-    asset_server: &mut AssetServer,
+    _asset_server: &mut AssetServer,
     materials: &mut Assets<UniversalMaterial>,
 ) {
     builder

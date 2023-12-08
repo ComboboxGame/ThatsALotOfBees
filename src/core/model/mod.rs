@@ -1,19 +1,19 @@
 mod bee;
-mod material;
 mod behaviours;
-mod hive;
-mod physcis;
 mod enemy;
+mod hive;
 mod living_creature;
+mod material;
+mod physcis;
 
 pub use bee::*;
-pub use material::*;
-use bevy::{prelude::*, sprite::Material2dPlugin};
-pub use hive::*;
-pub use physcis::*;
 pub use behaviours::*;
+use bevy::sprite::Material2dPlugin;
 pub use enemy::*;
+pub use hive::*;
 pub use living_creature::*;
+pub use material::*;
+pub use physcis::*;
 
 use self::behaviours::BehaviourPlugin;
 

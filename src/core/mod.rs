@@ -1,4 +1,4 @@
-use bevy::{asset::load_internal_asset, prelude::*};
+use bevy::asset::load_internal_asset;
 
 mod builder;
 mod camera;

@@ -1,7 +1,7 @@
 use std::fmt::Write;
 
 use bevy::{
-    diagnostic::{Diagnostics, DiagnosticsStore, FrameTimeDiagnosticsPlugin},
+    diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     prelude::*,
     utils::Duration,
 };

@@ -3,8 +3,9 @@ use rand::{rngs::StdRng, Rng, SeedableRng};
 
 use crate::{
     core::{
-        BeeType, Building, BuildingKind, LivingCreature, MoveToNavigationTargetBehaviour,
-        NavigationResult, NavigationTarget, SmartOrientation, RigidBody, model::behaviours::universal_behaviour::UniversalBehaviour, Faction,
+        model::behaviours::universal_behaviour::UniversalBehaviour, BeeType, Building,
+        BuildingKind, Faction, LivingCreature, MoveToNavigationTargetBehaviour, NavigationResult,
+        NavigationTarget, RigidBody, SmartOrientation,
     },
     utils::FlatProvider,
 };

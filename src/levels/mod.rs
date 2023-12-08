@@ -2,8 +2,8 @@ use bevy::{prelude::*, render::mesh::shape::Quad, sprite::Mesh2dHandle};
 use rand::{thread_rng, Rng};
 
 use crate::core::{
-    LivingCreature, MoveToNavigationTargetBehaviour, NavigationResult, NavigationTarget,
-    RigidBody, SmartOrientation, EnemyType, MAX_VIEW_RECT, UniversalBehaviour, Faction,
+    EnemyType, Faction, LivingCreature, MoveToNavigationTargetBehaviour, NavigationResult,
+    NavigationTarget, RigidBody, SmartOrientation, UniversalBehaviour, MAX_VIEW_RECT,
 };
 pub struct LevelsPlugin;
 

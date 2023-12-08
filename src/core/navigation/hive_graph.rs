@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use delaunator::{triangulate, Point};
-use rand::{rngs::StdRng, Rng, SeedableRng};
+use rand::{rngs::StdRng, SeedableRng};
 
 use super::{hive_map::*, precomputed::*};
 
@@ -102,7 +102,7 @@ pub fn build_hive_graph_system(
         }
     }*/
 
-    hive_graph.points = POINTS.iter().map(|(x,y)|Vec2::new(*x,*y)).collect();
+    hive_graph.points = POINTS.iter().map(|(x, y)| Vec2::new(*x, *y)).collect();
 
     hive_graph.adjacent_points.reserve(HIVE_GRAPH_POINTS_NUMBER);
 
