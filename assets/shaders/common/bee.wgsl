@@ -2,7 +2,9 @@
 #import game::common::mix_colors
 struct BeeMaterial {
     color: vec4<f32>,
-    tiles: u32,
+    tiles_x: u32,
+    tiles_y: u32,
+    wing_states: u32,
     shape: u32,
     wing_shape: u32,
     overlay_x: u32,
@@ -19,24 +21,24 @@ const COLOR_MATERIAL_FLAGS_TEXTURE_BIT: u32 = 1u;
 
 fn get_shape_color(uvi: vec2<f32>) -> vec4<f32> {
     var uv = uvi + vec2(f32(material.shape), 0.0);
-    return textureSample(texture, texture_sampler, uv / f32(material.tiles));
+    return textureSample(texture, texture_sampler, uv / vec2(f32(material.tiles_x), f32(material.tiles_y)));
 }
 
 fn get_wing_color(uvi: vec2<f32>, phase: f32) -> vec4<f32> {
     let tick = u32(floor(phase * 10.0));
-    var uv = uvi + vec2(f32(material.wing_shape * 2u + tick % 2u), 1.0);
-    return textureSample(texture, texture_sampler, uv / f32(material.tiles));
+    var uv = uvi + vec2(f32(material.wing_shape * material.wing_states + tick % material.wing_states), 1.0);
+    return textureSample(texture, texture_sampler, uv / vec2(f32(material.tiles_x), f32(material.tiles_y)));
 }
 
 fn get_overlay_color(uvi: vec2<f32>) -> vec4<f32> {
     var uv = uvi + vec2(f32(material.overlay_x), f32(material.overlay_y));
-    return textureSample(texture, texture_sampler, uv / f32(material.tiles));
+    return textureSample(texture, texture_sampler, uv / vec2(f32(material.tiles_x), f32(material.tiles_y)));
 }
 
 fn get_blood_color(uvi: vec2<f32>, intensity: f32) -> vec4<f32> {
     let tick = u32((1.0 - intensity) * 5.0);
-    var uv = uvi + vec2(f32(i32(material.tiles) - 1), f32(2u + tick));
-    return textureSample(texture, texture_sampler, uv / f32(material.tiles));
+    var uv = uvi + vec2(f32(i32(material.tiles_x) - 1), f32(2u + tick));
+    return textureSample(texture, texture_sampler, uv / vec2(f32(material.tiles_x), f32(material.tiles_y)));
 }
 
 fn get_color(uv: vec2<f32>, time: f32) -> vec4<f32> {
