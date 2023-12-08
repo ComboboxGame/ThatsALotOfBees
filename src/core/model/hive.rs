@@ -29,7 +29,7 @@ pub fn get_building_position(index: usize) -> Vec2 {
     Vec2::new(x, -y)
 }
 
-#[derive(Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BuildingKind {
     #[default]
     None,
@@ -39,6 +39,20 @@ pub enum BuildingKind {
     Armory,
     Workshop,
     BuilderAcademy,
+}
+
+impl ToString for BuildingKind {
+    fn to_string(&self) -> String {
+        match self {
+            BuildingKind::None => String::from("Empty lot"),
+            BuildingKind::Nexus => String::from("Nexus"),
+            BuildingKind::Storage => String::from("Storage"),
+            BuildingKind::WaxReactor => String::from("Wax reactor"),
+            BuildingKind::Armory => String::from("Armory"),
+            BuildingKind::Workshop => String::from("Workshop"),
+            BuildingKind::BuilderAcademy => String::from("Builder academy"),
+        }
+    }
 }
 
 pub fn get_building_image_name(kind: BuildingKind) -> &'static str {
@@ -78,7 +92,6 @@ pub fn update_buildings_system(
     mut commands: Commands,
     buildings: Res<HiveBuildings>,
     buildings_query: Query<(Entity, &Building, &Handle<ColorMaterial>)>,
-    mouse: Res<MouseState>,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -115,23 +128,5 @@ pub fn update_buildings_system(
             )),
             Mesh2dHandle(meshes.add(Quad::new(Vec2::new(64.0, 64.0)).into())),
         ));
-    }
-
-    if let Some(mouse_position) = mouse.position {
-        for (_, building, material) in buildings_query.iter() {
-            let building_position = get_building_position(building.index);
-
-            let color = if mouse_position.distance(building_position) < 32.0 {
-                Color::rgb_linear(1.4, 1.4, 1.4)
-            } else {
-                Color::rgb_linear(1.0, 1.0, 1.0)
-            };
-
-            if let Some(material) = materials.get_mut(material) {
-                if material.color != color {
-                    material.color = color;
-                }
-            }
-        }
     }
 }
