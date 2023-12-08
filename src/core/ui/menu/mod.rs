@@ -95,7 +95,9 @@ pub fn menu_update(
                 if building.kind == BuildingKind::None {
                     commands.entity(content).with_children(spawn_building_menu);
                 } else {
-                    commands.entity(content).with_children(spawn_upgrage_menu);
+                    commands
+                        .entity(content)
+                        .with_children(|e| spawn_upgrage_menu(e, building_idx));
                 };
             }
         }

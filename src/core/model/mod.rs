@@ -30,6 +30,8 @@ impl Plugin for ModelPlugin {
         app.add_systems(PreUpdate, update_buildings_system);
         app.add_systems(PreUpdate, prepare_atlases_system);
 
+        app.add_systems(Update, living_creature_system);
+
         app.add_systems(
             PostUpdate,
             (

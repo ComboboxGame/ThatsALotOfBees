@@ -1,9 +1,11 @@
 use self::{
+    button::button_hover,
     counter::{setup_bee_counters, update_counter},
-    menu::{menu_update, spawn_menu, Menu}, moving_ui::move_ui, button::button_hover,
+    menu::{menu_update, spawn_menu, Menu},
+    moving_ui::move_ui,
 };
-use bevy::prelude::*;
 use super::{get_building_position, Building, MouseState, UniversalMaterial};
+use bevy::prelude::*;
 
 mod button;
 mod constants;

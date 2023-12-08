@@ -59,4 +59,3 @@ pub fn spawn_title(builder: &mut ChildBuilder, asset_server: &mut AssetServer) {
                 });
         });
 }
-
