@@ -5,7 +5,7 @@ use self::{
     menu::{menu_update, spawn_menu, Menu, order_button_system},
     moving_ui::move_ui,
 };
-use super::{get_building_position, Building, MouseState, UniversalMaterial};
+use super::{get_building_position, Building, MouseState, UniversalMaterial, BuildingMaterial};
 use bevy::prelude::*;
 
 mod button;
@@ -63,9 +63,9 @@ fn setup_ui(
 fn highlight_hive(
     mut interaction_query: Query<(&Interaction, Changed<Interaction>, &MainUiNode)>,
     mut building_menu_query: Query<&mut Menu>,
-    buildings_query: Query<(Entity, &Building, &Handle<ColorMaterial>)>,
+    buildings_query: Query<(Entity, &Building, &Handle<BuildingMaterial>)>,
     mouse: Res<MouseState>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut materials: ResMut<Assets<BuildingMaterial>>,
     mut mouse_pos_when_pressed: Local<Vec2>,
 ) {
     let (interaction, changed, _) = interaction_query.single_mut();
@@ -90,6 +90,20 @@ fn highlight_hive(
                     break;
                 }
             }
+
+            for (_, building, material) in buildings_query.iter() {
+                let selected = if let Some(index) = building_menu.focus_building {index == building.index} else {false};
+    
+                if let Some(material) = materials.get_mut(material) {
+                    if selected != ((material.state & 2) == 2) {
+                        if selected {
+                            material.state |= 2;
+                        } else {
+                            material.state &= !2;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -97,15 +111,11 @@ fn highlight_hive(
         for (_, building, material) in buildings_query.iter() {
             let building_position = get_building_position(building.index);
 
-            let color = if mouse_position.distance(building_position) < 32.0 {
-                Color::rgb_linear(1.4, 1.4, 1.4)
-            } else {
-                Color::rgb_linear(1.0, 1.0, 1.0)
-            };
-
             if let Some(material) = materials.get_mut(material) {
-                if material.color != color {
-                    material.color = color;
+                if mouse_position.distance(building_position) < 32.0 {
+                    material.state |= 1;
+                } else {
+                    material.state &= !1;
                 }
             }
         }

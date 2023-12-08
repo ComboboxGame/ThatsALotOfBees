@@ -1,5 +1,5 @@
 use super::constants;
-use crate::core::{CurrencyStorage, CurrencyType};
+use crate::core::{CurrencyStorage, CurrencyType, CURRENCY_NUM};
 use bevy::prelude::*;
 use strum::IntoEnumIterator;
 
@@ -36,8 +36,8 @@ pub fn spawn_currency_display(builder: &mut ChildBuilder, asset_server: &mut Ass
                     ..Default::default()
                 })
                 .with_children(|builder| {
-                    for currency in CurrencyType::iter() {
-                        spawn_currency_counter(builder, currency, asset_server);
+                    for currency in 0..CURRENCY_NUM {
+                        spawn_currency_counter(builder, CurrencyType(currency), asset_server);
                     }
                 });
         });
@@ -75,8 +75,8 @@ pub fn spawn_currency_counter(
                     builder.spawn((
                         NodeBundle {
                             style: Style {
-                                width: Val::Px(24.),
-                                height: Val::Px(24.),
+                                width: Val::Px(32.),
+                                height: Val::Px(32.),
                                 ..Default::default()
                             },
                             background_color: BackgroundColor(Color::WHITE),
@@ -111,7 +111,7 @@ pub fn spawn_currency_counter(
                         DisplayType::Inflow,
                         TextBundle::from_section("", text_style.clone()),
                     ));
-                    builder.spawn(TextBundle::from_section("/sec", text_style.clone()));
+                    builder.spawn(TextBundle::from_section("/min", text_style.clone()));
                 });
         });
 }
@@ -121,12 +121,11 @@ pub fn refresh_display(
     mut display_q: Query<(&CurrencyType, &DisplayType, &mut Text)>,
 ) {
     for (currency, display, mut text) in display_q.iter_mut() {
-        if let Some(currency) = storage.storage.get(currency) {
-            text.sections[0].value = match display {
-                DisplayType::Inflow => currency.inflow.to_string(),
-                DisplayType::Value => currency.value.to_string(),
-                DisplayType::Limit => currency.limit.to_string(),
-            }
+        text.sections[0].value = match display {
+            //DisplayType::Inflow => currency.inflow.to_string(),
+            DisplayType::Value => storage.stored[currency.0].to_string(),
+            DisplayType::Limit => storage.max_stored[currency.0].to_string(),
+            DisplayType::Inflow => storage.estimated_inflow[currency.0].to_string(),
         }
     }
 }

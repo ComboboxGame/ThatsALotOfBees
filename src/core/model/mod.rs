@@ -28,6 +28,7 @@ pub struct ModelPlugin;
 impl Plugin for ModelPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(Material2dPlugin::<UniversalMaterial>::default());
+        app.add_plugins(Material2dPlugin::<BuildingMaterial>::default());
 
         app.init_resource::<HiveBuildings>();
         app.init_resource::<CurrencyStorage>();
@@ -38,8 +39,8 @@ impl Plugin for ModelPlugin {
         app.add_systems(PreUpdate, update_wasp_material_system);
         app.add_systems(PreUpdate, update_buildings_system);
         app.add_systems(PreUpdate, prepare_atlases_system);
-        app.add_systems(PreUpdate, earn_currency);
-
+        
+        app.add_systems(Update, gain_system);
         app.add_systems(Update, living_creature_system);
         app.add_systems(Update, buildings_system);
 

@@ -5,7 +5,7 @@ use bevy::{
 
 use crate::utils::FlatProvider;
 
-use super::BackgroundVisual;
+use super::{BackgroundVisual, BackgroundVisual2};
 
 pub const MAX_VIEW_RECT: Rect = Rect {
     min: Vec2::new(-900.0, -500.0),
@@ -45,10 +45,11 @@ fn clamp_to_rect(pos: Vec2, view_half_size: Vec2, rect: Rect, factor: f32) -> Ve
 }
 
 pub fn in_game_camera_system(
-    mut cameras: Query<(&Camera, &mut Transform), Without<BackgroundVisual>>,
+    mut cameras: Query<(&Camera, &mut Transform), (Without<BackgroundVisual>, Without<BackgroundVisual2>)>,
     mut mouse_motion_events: EventReader<MouseMotion>,
     mut mouse_wheel_events: EventReader<MouseWheel>,
-    mut background_visual: Query<&mut Transform, With<BackgroundVisual>>,
+    mut background_visual: Query<&mut Transform, (With<BackgroundVisual>, Without<BackgroundVisual2>)>,
+    mut background_visual2: Query<&mut Transform, (With<BackgroundVisual2>, Without<BackgroundVisual>)>,
     mouse: Res<Input<MouseButton>>,
     windows: Query<&Window>,
     mut target_zoom: Local<Option<f32>>,
@@ -60,6 +61,7 @@ pub fn in_game_camera_system(
 
     let _window = windows.single();
     let mut background_visual = background_visual.single_mut();
+    let mut background_visual2 = background_visual2.single_mut();
 
     // max view height
     const MAX_VIEW_HEIGHT: f32 = 600.0;
@@ -100,6 +102,7 @@ pub fn in_game_camera_system(
         let view_size = view_rect.max - view_rect.min;
 
         background_visual.scale = Vec3::splat(view_size.y / 128.0 * 1.2);
+        background_visual2.scale = Vec3::splat(view_size.y / 128.0 * 1.2);
 
         let mut pos = transform.flat();
 
@@ -125,7 +128,9 @@ pub fn in_game_camera_system(
         }
         transform.translation = pos.extend(transform.translation.z);
 
-        background_visual.translation.x = transform.translation.x / 1.1;
-        background_visual.translation.y = transform.translation.y / 1.1;
+        background_visual.translation.x = transform.translation.x / 1.2;
+        background_visual.translation.y = transform.translation.y / 1.2;
+        background_visual2.translation.x = transform.translation.x / 1.05;
+        background_visual2.translation.y = transform.translation.y / 1.05;
     }
 }

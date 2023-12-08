@@ -73,7 +73,12 @@ impl From<BeeType> for LivingCreature {
                 attack_cooldown: 1.5,
                 ..Default::default()
             },
-            BeeType::Worker => todo!(),
+            BeeType::Worker => LivingCreature {
+                health: 3,
+                attack_damage: 0,
+                attack_cooldown: 2.0,
+                ..Default::default()
+            },
             BeeType::Builder => todo!(),
             BeeType::Defender => LivingCreature {
                 health: 4,

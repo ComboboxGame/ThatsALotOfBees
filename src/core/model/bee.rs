@@ -1,6 +1,6 @@
 use crate::core::{NavigationTarget, NavigationResult, Faction};
 
-use super::{UniversalMaterial, LivingCreature, RigidBody, UniversalBehaviour, MoveToNavigationTargetBehaviour, SmartOrientation, BEE_MESH};
+use super::{UniversalMaterial, LivingCreature, RigidBody, UniversalBehaviour, MoveToNavigationTargetBehaviour, SmartOrientation, BEE_MESH, CurrencyGainPerMinute};
 
 use bevy::{prelude::*, sprite::Mesh2dHandle};
 use rand::{thread_rng, Rng};
@@ -41,6 +41,7 @@ pub struct BeeBundle {
     move_behaviour: MoveToNavigationTargetBehaviour,
     orientation: SmartOrientation,
     faction: Faction,
+    gain: CurrencyGainPerMinute,
 }
 
 impl From<(BeeType, Vec2)> for BeeBundle {
@@ -57,6 +58,7 @@ impl From<(BeeType, Vec2)> for BeeBundle {
             creature: LivingCreature::from(bee_type),
             rigid_body: RigidBody::from(bee_type),
             behaviour: UniversalBehaviour::from(bee_type),
+            gain: CurrencyGainPerMinute::from(bee_type),
             target: NavigationTarget::None,
             result: NavigationResult::default(),
             move_behaviour: MoveToNavigationTargetBehaviour,

@@ -22,6 +22,7 @@ pub struct BeeMaterialUniform {
     pub overlay_y: u32,
     pub phase: f32,
     pub damage_time: f32,
+    pub upgrade_time: f32,
 }
 
 impl Default for BeeMaterialUniform {
@@ -29,6 +30,7 @@ impl Default for BeeMaterialUniform {
         BeeMaterialUniform {
             phase: 0.,
             damage_time: -1.0,
+            upgrade_time: -1.0,
             shape: 0,
             tiles_x: 8,
             tiles_y: 8,
@@ -49,6 +51,30 @@ pub struct UniversalMaterial {
     #[texture(1)]
     #[sampler(2)]
     pub texture: Option<Handle<Image>>,
+}
+
+#[derive(AsBindGroup, Debug, Clone, Reflect, Asset, Default)]
+pub struct BuildingMaterial {
+    #[uniform(0)]
+    pub progress: f32,
+    #[uniform(1)]
+    pub state: u32,
+
+    #[texture(2)]
+    #[sampler(3)]
+    pub texture: Option<Handle<Image>>,
+
+    #[texture(4)]
+    #[sampler(5)]
+    pub background: Option<Handle<Image>>,
+
+    #[texture(6)]
+    #[sampler(7)]
+    pub hovered: Option<Handle<Image>>,
+
+    #[texture(8)]
+    #[sampler(9)]
+    pub selected: Option<Handle<Image>>,
 }
 
 impl From<BeeType> for UniversalMaterial {
@@ -80,6 +106,7 @@ impl From<BeeType> for UniversalMaterial {
                 overlay_y,
                 phase: rand::thread_rng().gen_range(0.0..16.0),
                 damage_time: -1.0,
+                upgrade_time: -1.0,
             },
             texture: Some(BEE_ATLAS_HANDLE),
         }
@@ -101,6 +128,7 @@ impl From<EnemyType> for UniversalMaterial {
                     overlay_y: 3,
                     phase: rand::thread_rng().gen_range(0.0..16.0),
                     damage_time: -1.0,
+                    upgrade_time: -1.0,
                 },
                 texture: Some(WASP_ATLAS_HANDLE),
             },
@@ -116,6 +144,7 @@ impl From<EnemyType> for UniversalMaterial {
                     overlay_y: 0,
                     phase: rand::thread_rng().gen_range(0.0..16.0),
                     damage_time: -1.0,
+                    upgrade_time: -1.0,
                 },
                 texture: Some(BIRB_ATLAS_HANDLE),
             },
@@ -136,6 +165,12 @@ impl Material2d for UniversalMaterial {
 
     fn vertex_shader() -> ShaderRef {
         "shaders\\vertex\\uvdxdy.wgsl".into()
+    }
+}
+
+impl Material2d for BuildingMaterial {
+    fn fragment_shader() -> ShaderRef {
+        "shaders\\building.wgsl".into()
     }
 }
 

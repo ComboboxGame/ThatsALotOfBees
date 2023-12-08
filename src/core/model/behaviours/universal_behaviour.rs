@@ -50,7 +50,7 @@ impl From<BeeType> for UniversalBehaviour {
                 max_wonder_distance_to_hive: 150.0,
                 min_wonder_distance_to_hive: 40.0,
                 min_wonder_distance: 60.0,
-                enemy_attack_distance_to_hive: 200.0,
+                enemy_attack_distance_to_hive: 1000.0,
                 enemy_attack_radius: 40.0,
                 enemy_attack_radius_if_alerted: 40.0,
                 alert_distance: 0.0,
@@ -58,14 +58,36 @@ impl From<BeeType> for UniversalBehaviour {
                 min_healthpoints_before_run_away: 0,
                 time_since_last_refresh: 0.0,
             },
-            BeeType::Worker => todo!(),
+            BeeType::Worker => UniversalBehaviour {
+                max_wonder_distance_to_hive: 340.0,
+                min_wonder_distance_to_hive: 110.0,
+                min_wonder_distance: 100.0,
+                enemy_attack_distance_to_hive: 0.0,
+                enemy_attack_radius: 0.0,
+                enemy_attack_radius_if_alerted: 0.0,
+                alert_distance: 0.0,
+                run_away_radius: 60.0,
+                min_healthpoints_before_run_away: 100,
+                time_since_last_refresh: 0.0,
+            },
             BeeType::Builder => todo!(),
-            BeeType::Defender => todo!(),
+            BeeType::Defender => UniversalBehaviour {
+                max_wonder_distance_to_hive: 220.0,
+                min_wonder_distance_to_hive: 110.0,
+                min_wonder_distance: 80.0,
+                enemy_attack_distance_to_hive: 1000.0,
+                enemy_attack_radius: 100.0,
+                enemy_attack_radius_if_alerted: 1000.0,
+                alert_distance: 1000.0,
+                run_away_radius: 0.0,
+                min_healthpoints_before_run_away: 0,
+                time_since_last_refresh: 0.0,
+            },
             BeeType::Queen => UniversalBehaviour {
                 max_wonder_distance_to_hive: 110.0,
                 min_wonder_distance_to_hive: 0.0,
                 min_wonder_distance: 50.0,
-                enemy_attack_distance_to_hive: 110.0,
+                enemy_attack_distance_to_hive: 120.0,
                 enemy_attack_radius: 1000.0,
                 enemy_attack_radius_if_alerted: 1000.0,
                 alert_distance: 0.0,
@@ -226,6 +248,8 @@ pub fn universal_behaviour_system(
         }
 
         let enemy_attack_radius = if is_alert {
+
+            println!("Alert!");
             behaviour.enemy_attack_radius_if_alerted
         } else {
             behaviour.enemy_attack_radius

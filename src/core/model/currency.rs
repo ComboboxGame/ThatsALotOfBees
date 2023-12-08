@@ -1,21 +1,24 @@
 use super::BeeType;
 use bevy::{prelude::*, utils::HashMap};
+use rand::{thread_rng, Rng};
 use strum::IntoEnumIterator;
-use strum_macros::EnumIter;
 
-#[derive(EnumIter, Eq, PartialEq, Hash, Component, Clone)]
-pub enum CurrencyType {
-    Honey,
-    Wax,
-    MagicWax,
-}
+#[derive(Eq, PartialEq, Hash, Component, Clone)]
+pub struct CurrencyType(pub usize);
+
+pub const CURRENCY_HONEY: CurrencyType = CurrencyType(0);
+pub const CURRENCY_WAX: CurrencyType = CurrencyType(1);
+pub const CURRENCY_MAGIC_WAX: CurrencyType = CurrencyType(2);
+
+pub const CURRENCY_NUM: usize = 3;
 
 impl CurrencyType {
     pub fn get_image_name(&self) -> &'static str {
-        match self {
-            CurrencyType::Honey => "images/Honey.png",
-            CurrencyType::Wax => "images/Wax.png",
-            CurrencyType::MagicWax => "images/MagicWax.png",
+        match *self {
+            CURRENCY_HONEY => "images/Honey.png",
+            CURRENCY_WAX => "images/Wax.png",
+            CURRENCY_MAGIC_WAX => "images/MagicWax.png",
+            _ => "images/W.png",
         }
     }
 }
@@ -36,37 +39,100 @@ impl Default for CurrencyValue {
     }
 }
 
+pub type CurrencyValues = [u64; CURRENCY_NUM];
+
 #[derive(Resource)]
 pub struct CurrencyStorage {
-    pub storage: HashMap<CurrencyType, CurrencyValue>,
-    pub last_update: u64,
+    pub stored: CurrencyValues,
+    pub max_stored: CurrencyValues,
+    pub estimated_inflow: CurrencyValues,
+}
+
+impl CurrencyStorage {
+    pub fn check_can_spend(&self, price: &CurrencyValues) -> bool {
+        self.stored.iter().enumerate().all(|(i, stored)| *stored >= price[i])
+    }
+
+    pub fn spend(&mut self, price: &CurrencyValues) {
+        self.stored.iter_mut().enumerate().for_each(|(i, stored)| *stored -= price[i])
+    }
+
+    pub fn gain(&mut self, price: &CurrencyValues) {
+        self.stored.iter_mut().enumerate().for_each(|(i, stored)| *stored += price[i])
+    }
 }
 
 impl Default for CurrencyStorage {
     fn default() -> Self {
-        let mut storage = HashMap::new();
-        for currency in CurrencyType::iter() {
-            storage.insert(currency, CurrencyValue::default());
-        }
         Self {
-            storage,
-            last_update: 0,
+            stored: [30; CURRENCY_NUM],
+            max_stored: [30; CURRENCY_NUM],
+            estimated_inflow: [0; CURRENCY_NUM],
         }
     }
 }
 
-pub fn earn_currency(mut storage: ResMut<CurrencyStorage>, time: Res<Time>, bees: Query<&BeeType>) {
-    if storage.last_update < time.elapsed().as_secs() {
-        storage.last_update = time.elapsed().as_secs();
-        let honey_inflow = (bees.iter().count() as u64)
-            + (bees.iter().filter(|bee| **bee != BeeType::Baby).count() as u64) * 2;
-        if let Some(honey) = storage.storage.get_mut(&CurrencyType::Honey) {
-            honey.inflow = honey_inflow;
-            honey.value = u64::min(honey.value + honey_inflow, honey.limit);
+#[derive(Component, Default)]
+pub struct CurrencyGainPerMinute {
+    pub gain: CurrencyValues,
+    pub gained_this_minute: CurrencyValues,
+    pub time_since_minute_start: f32,
+}
+
+pub fn gain_system(
+    mut currency: ResMut<CurrencyStorage>,
+    mut gainers: Query<&mut CurrencyGainPerMinute>,
+    time: Res<Time>,
+) {
+    currency.estimated_inflow = [0; CURRENCY_NUM];
+    for mut gainer in gainers.iter_mut() {
+        currency.estimated_inflow.iter_mut().enumerate().for_each(|(i, v)| *v += gainer.gain[i]);
+
+        gainer.time_since_minute_start += time.delta_seconds();
+        let t = gainer.time_since_minute_start as f64;
+
+        let new_gained_this_minute = gainer.gain.map(|g| ((g as f64) * t / 60.0) as u64);
+        
+        for i in 0..CURRENCY_NUM {
+            let new_gain = new_gained_this_minute[i].min(gainer.gain[i]);
+            if new_gain > gainer.gained_this_minute[i] {
+                let gain = new_gain - gainer.gained_this_minute[i];
+                currency.stored[i] = (currency.stored[i] + gain).min(currency.max_stored[i]);
+                gainer.gained_this_minute[i] = new_gain;
+            }
         }
-        if let Some(wax) = storage.storage.get_mut(&CurrencyType::Wax) {
-            wax.inflow = honey_inflow / 2;
-            wax.value = u64::min(wax.value + wax.inflow, wax.limit);
+
+        if gainer.time_since_minute_start > 60.0 {
+            gainer.time_since_minute_start -= 60.0;
+            gainer.gained_this_minute = [0; CURRENCY_NUM];
+        }
+    }
+}
+
+impl From<BeeType> for CurrencyGainPerMinute {
+    fn from(value: BeeType) -> Self {
+        match value {
+            BeeType::Baby => CurrencyGainPerMinute {
+                ..Default::default()
+            },
+            BeeType::Regular => CurrencyGainPerMinute {
+                gain: [2, 0, 0],
+                ..Default::default()
+            },
+            BeeType::Worker => CurrencyGainPerMinute {
+                gain: [8, 2, 0],
+                ..Default::default()
+            },
+            BeeType::Builder => CurrencyGainPerMinute {
+                ..Default::default()
+            },
+            BeeType::Defender => CurrencyGainPerMinute {
+                ..Default::default()
+            },
+            BeeType::Queen => CurrencyGainPerMinute {
+                gain: [4, 0, 0],
+                ..Default::default()
+            },
         }
     }
 }
