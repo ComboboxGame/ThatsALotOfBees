@@ -1,5 +1,5 @@
+use crate::core::{ui::button::spawn_button, BuildingKind};
 use bevy::prelude::*;
-use crate::core::{BuildingKind, ui::button::spawn_button};
 
 pub fn spawn_building_menu(builder: &mut ChildBuilder) {
     let buildable = vec![

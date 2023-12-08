@@ -2,7 +2,7 @@ pub use bevy::prelude::*;
 
 use crate::core::NavigationTarget;
 
-use super::{BeeType, EnemyType, UniversalMaterial, RigidBody};
+use super::{BeeType, EnemyType, RigidBody, UniversalMaterial};
 
 #[derive(Component)]
 pub struct LivingCreature {
@@ -110,7 +110,6 @@ impl From<EnemyType> for LivingCreature {
         }
     }
 }
-
 
 pub fn living_creature_system(
     mut creatures: Query<(

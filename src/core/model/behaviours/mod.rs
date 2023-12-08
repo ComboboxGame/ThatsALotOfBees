@@ -4,8 +4,8 @@ mod bees;
 mod buildings;
 mod universal_behaviour;
 
-use buildings::*;
 use bees::*;
+use buildings::*;
 
 pub use universal_behaviour::*;
 

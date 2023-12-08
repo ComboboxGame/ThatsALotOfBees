@@ -36,10 +36,7 @@ pub fn spawn_button<T: Bundle>(builder: &mut ChildBuilder, title: &str, componen
 }
 
 pub fn button_hover(
-    mut buttons: Query<
-        (&Interaction, &mut BackgroundColor),
-        (With<Button>, Changed<Interaction>),
-    >,
+    mut buttons: Query<(&Interaction, &mut BackgroundColor), (With<Button>, Changed<Interaction>)>,
 ) {
     for (interaction, mut background) in buttons.iter_mut() {
         let mut color = constants::button_color();

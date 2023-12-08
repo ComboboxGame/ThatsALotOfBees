@@ -1,8 +1,13 @@
 use bevy::prelude::*;
 
-use crate::core::ui::{constants, button::spawn_button};
+use crate::core::ui::{button::spawn_button, constants};
 
-pub fn spawn_upgrage_menu(builder: &mut ChildBuilder) {
+#[derive(Component)]
+struct OrderButton {
+    building_index: usize
+}
+
+pub fn spawn_upgrage_menu(builder: &mut ChildBuilder, building_index: usize) {
     builder
         .spawn((NodeBundle {
             style: Style {
@@ -32,7 +37,27 @@ pub fn spawn_upgrage_menu(builder: &mut ChildBuilder) {
                         },
                     ));
                 });
+                spawn_button(
+                    builder,
+                    "Order 1",
+                    (OrderButton {
+                        building_index
+                    }),
+                );
             spawn_button(builder, "Upgrade", ());
             spawn_button(builder, "Destroy", ());
         });
+}
+
+fn interaction_system(
+    order_interactions: Query<(&Interaction, &OrderButton), Changed<Interaction>>,
+) {
+    for (interaction, button) in order_interactions.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                
+            }
+            _ => {}
+        }
+    }
 }
