@@ -61,8 +61,8 @@ pub fn get_building_image_name(kind: BuildingKind) -> &'static str {
         BuildingKind::Nexus => "images/Nexus.png",
         BuildingKind::Storage => "images/Nexus.png",
         BuildingKind::WaxReactor => "images/Nexus.png",
-        BuildingKind::Armory => "images/Nexus.png",
-        BuildingKind::Workshop => "images/Nexus.png",
+        BuildingKind::Armory => "images/Armory.png",
+        BuildingKind::Workshop => "images/Workshop.png",
         BuildingKind::BuilderAcademy => "images/Nexus.png",
     }
 }
