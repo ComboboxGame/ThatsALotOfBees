@@ -1,24 +1,27 @@
 mod bee;
-mod bee_material;
+mod material;
 mod behaviours;
 mod hive;
-mod movement;
-mod wasp;
+mod physcis;
+mod enemy;
+mod living_creature;
 
 pub use bee::*;
-pub use bee_material::*;
+pub use material::*;
 use bevy::{prelude::*, sprite::Material2dPlugin};
 pub use hive::*;
-pub use movement::*;
-pub use wasp::*;
+pub use physcis::*;
+pub use behaviours::*;
+pub use enemy::*;
+pub use living_creature::*;
 
 use self::behaviours::BehaviourPlugin;
 
 pub struct ModelPlugin;
 
 impl Plugin for ModelPlugin {
-    fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_plugins(Material2dPlugin::<BeeMaterial>::default());
+    fn build(&self, app: &mut App) {
+        app.add_plugins(Material2dPlugin::<UniversalMaterial>::default());
 
         app.init_resource::<HiveBuildings>();
 
@@ -30,8 +33,10 @@ impl Plugin for ModelPlugin {
         app.add_systems(
             PostUpdate,
             (
-                movement_system,
-                movement_orientation_system.after(movement_system),
+                move_to_target_system,
+                collision_system.after(move_to_target_system),
+                integration_system.after(collision_system),
+                orientation_system.after(integration_system),
             ),
         );
 

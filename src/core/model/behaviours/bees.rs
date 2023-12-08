@@ -2,9 +2,11 @@ use bevy::prelude::*;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 
 use crate::{
-    core::{BeeKind, HiveMap, LivingCreature, NavigationResult, NavigationTarget, WaspKind},
+    core::{BeeType, HiveMap, LivingCreature, NavigationResult, NavigationTarget, EnemyType},
     utils::FlatProvider,
 };
+
+use super::UniversalBehaviour;
 
 #[derive(Component, Default)]
 pub struct BabyBee {}
@@ -15,48 +17,51 @@ pub const QUEEN_ATTACK_RADIUS: f32 = 24.0;
 pub fn bee_behaviour_system(
     mut bees: Query<
         (
-            &mut BeeKind,
+            &mut BeeType,
             &mut LivingCreature,
+            &mut UniversalBehaviour,
             &Transform,
             &mut NavigationTarget,
             &NavigationResult,
         ),
-        Without<WaspKind>,
+        Without<EnemyType>,
     >,
-    mut wasps: Query<(Entity, &mut LivingCreature, &Transform), With<WaspKind>>,
+    mut wasps: Query<(Entity, &mut LivingCreature, &Transform), With<EnemyType>>,
     map: Res<HiveMap>,
     mut rng: Local<Option<StdRng>>,
 ) {
     if !map.ready {
         return;
     }
-    
+
     if rng.is_none() {
         *rng = Some(StdRng::seed_from_u64(0));
     }
     let mut rng = rng.as_mut().unwrap();
 
-    for (mut bee, mut living_creature, transform, mut target, result) in bees.iter_mut() {
+    for (mut bee, mut living_creature, mut behaviour ,transform, mut target, result) in bees.iter_mut() {
         match *bee {
-            BeeKind::Baby => {
+            BeeType::Baby => {
                 // ================ BABY BEHAVIOUR START ===============
-                if result.is_reached() {
+                /*if result.is_reached() {
                     // Go somewhere...
                     if let Some(pos) =
                         generate_new_target_point(&map, &mut rng, transform.flat(), 120.0, 45.0)
                     {
                         *target = NavigationTarget::Position(pos);
                     }
-                }
+                }*/
 
-                if living_creature.time_alive > 20.0 {
-                    *bee = BeeKind::Regular;
-                    *living_creature = LivingCreature::from(BeeKind::Regular);
+                if living_creature.time_alive > 12.0 {
+                    *bee = BeeType::Regular;
+                    *living_creature = LivingCreature::from(BeeType::Regular);
+                    *behaviour = UniversalBehaviour::from(BeeType::Regular);
                 }
                 // ================ BABY BEHAVIOUR END ===============
-            }
+            },
+            _ => {}
 
-            BeeKind::Regular => {
+            /*BeeType::Regular => {
                 // ================ REGULAR BEHAVIOUR START ===============
                 if living_creature.time_since_last_damage_taken < 0.1 {
                     if let NavigationTarget::Entity(_, _) = *target {
@@ -100,13 +105,13 @@ pub fn bee_behaviour_system(
                 // ================ REGULAR BEHAVIOUR END ===============
             }
 
-            BeeKind::Worker => todo!(),
+            BeeType::Worker => todo!(),
 
-            BeeKind::Builder => todo!(),
+            BeeType::Builder => todo!(),
 
-            BeeKind::Defender => todo!(),
+            BeeType::Defender => todo!(),
 
-            BeeKind::Queen => {
+            BeeType::Queen => {
                 // ================ QUEEN BEHAVIOUR START ===============
 
                 if living_creature.time_since_last_damage_taken < 0.1 {
@@ -149,7 +154,7 @@ pub fn bee_behaviour_system(
                     }
                 }
                 // ================ QUEEN BEHAVIOUR END ===============
-            }
+            }*/
         }
     }
 }

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::core::{HIVE_IMAGE_SIZE, HIVE_WORLD_SIZE};
 
-const HIVE_MAP_SIZE: usize = 80;
+const HIVE_MAP_SIZE: usize = 160;
 
 const ALLOWED_COLORS: [(u8, u8, u8, u8); 3] =
     [(246, 180, 0, 255), (246, 188, 0, 255), (255, 255, 255, 0)];
@@ -19,9 +19,7 @@ impl HiveMap {
     }
 
     pub fn get_obstruction(&self, pos: Vec2) -> f32 {
-        if !self.ready {
-            
-        }
+        if !self.ready {}
         if pos.x <= -HIVE_WORLD_SIZE / 2.0 || pos.x >= HIVE_WORLD_SIZE / 2.0 {
             return 0.0;
         }

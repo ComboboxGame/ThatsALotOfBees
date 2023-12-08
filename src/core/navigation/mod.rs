@@ -18,6 +18,5 @@ impl Plugin for NavigationPlugin {
         app.add_systems(PreUpdate, build_hive_map_system);
         app.add_systems(PreUpdate, build_hive_graph_system);
         app.add_systems(Update, navigation_system);
-        app.add_systems(Update, navigation_movement_system.after(navigation_system));
     }
 }

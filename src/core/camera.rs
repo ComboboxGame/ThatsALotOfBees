@@ -1,9 +1,11 @@
 use bevy::{
-    input::mouse::{MouseMotion, MouseWheel, MouseScrollUnit},
+    input::mouse::{MouseMotion, MouseScrollUnit, MouseWheel},
     prelude::*,
 };
 
 use crate::utils::FlatProvider;
+
+use super::BackgroundVisual;
 
 pub const MAX_VIEW_RECT: Rect = Rect {
     min: Vec2::new(-900.0, -500.0),
@@ -43,9 +45,10 @@ fn clamp_to_rect(pos: Vec2, view_half_size: Vec2, rect: Rect, factor: f32) -> Ve
 }
 
 pub fn in_game_camera_system(
-    mut cameras: Query<(&Camera, &mut Transform)>,
+    mut cameras: Query<(&Camera, &mut Transform), Without<BackgroundVisual>>,
     mut mouse_motion_events: EventReader<MouseMotion>,
     mut mouse_wheel_events: EventReader<MouseWheel>,
+    mut background_visual: Query<&mut Transform, With<BackgroundVisual>>,
     mouse: Res<Input<MouseButton>>,
     windows: Query<&Window>,
     mut target_zoom: Local<Option<f32>>,
@@ -56,6 +59,7 @@ pub fn in_game_camera_system(
     }
 
     let _window = windows.single();
+    let mut background_visual = background_visual.single_mut();
 
     // max view height
     const MAX_VIEW_HEIGHT: f32 = 600.0;
@@ -64,10 +68,12 @@ pub fn in_game_camera_system(
     for (camera, mut transform) in cameras.iter_mut() {
         for e in mouse_wheel_events.read() {
             // todo: resolution dependant\
-            
-            println!("{:?}", e.unit);
             if target_zoom.unwrap() > 0.05 || e.y < 0.0 {
-                let scroll_amount = if e.unit == MouseScrollUnit::Line { e.y } else {e.y / 16.0 };
+                let scroll_amount = if e.unit == MouseScrollUnit::Line {
+                    e.y
+                } else {
+                    e.y / 16.0
+                };
                 *target_zoom.as_mut().unwrap() /= 1.1f32.powf(scroll_amount);
             }
         }
@@ -93,6 +99,8 @@ pub fn in_game_camera_system(
         let view_rect = get_view_rect(camera, &transform);
         let view_size = view_rect.max - view_rect.min;
 
+        background_visual.scale = Vec3::splat(view_size.y / 128.0 * 1.2);
+
         let mut pos = transform.flat();
 
         for e in mouse_motion_events.read() {
@@ -116,5 +124,8 @@ pub fn in_game_camera_system(
             );
         }
         transform.translation = pos.extend(transform.translation.z);
+
+        background_visual.translation.x = transform.translation.x / 1.1;
+        background_visual.translation.y = transform.translation.y / 1.1;
     }
 }

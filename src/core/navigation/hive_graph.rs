@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use delaunator::{triangulate, Point};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 
-use super::{hive_map::*, precomputed::DISTANCES};
+use super::{hive_map::*, precomputed::*};
 
 pub const HIVE_GRAPH_POINTS_NUMBER: usize = 512;
 pub const HIVE_GRAPH_RADIUS: f32 = 180.0;
@@ -71,7 +71,7 @@ pub fn build_hive_graph_system(
 
     hive_graph.ready = true;
 
-    let mut rng = StdRng::seed_from_u64(1);
+    /*let mut rng = StdRng::seed_from_u64(1);
 
     while hive_graph.points.len() < HIVE_GRAPH_POINTS_NUMBER {
         let mut furthest_point = Vec2::ZERO;
@@ -100,7 +100,9 @@ pub fn build_hive_graph_system(
         if furthest_point_dist > 0.0 {
             hive_graph.points.push(furthest_point);
         }
-    }
+    }*/
+
+    hive_graph.points = POINTS.iter().map(|(x,y)|Vec2::new(*x,*y)).collect();
 
     hive_graph.adjacent_points.reserve(HIVE_GRAPH_POINTS_NUMBER);
 

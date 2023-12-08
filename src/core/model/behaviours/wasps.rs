@@ -3,7 +3,7 @@ use rand::{rngs::StdRng, Rng, SeedableRng};
 
 use crate::{
     core::{
-        BeeKind, HiveMap, LivingCreature, MaxSpeed, NavigationResult, NavigationTarget, WaspKind,
+        BeeType, HiveMap, LivingCreature, NavigationResult, NavigationTarget, EnemyType,
     },
     utils::FlatProvider,
 };
@@ -16,16 +16,15 @@ pub const WASP_ATTACK_RADIUS: f32 = 22.0;
 pub fn wasp_behaviour_system(
     mut wasps: Query<
         (
-            &WaspKind,
+            &EnemyType,
             &mut LivingCreature,
             &Transform,
             &mut NavigationTarget,
             &NavigationResult,
-            &mut MaxSpeed,
         ),
-        Without<BeeKind>,
+        Without<BeeType>,
     >,
-    mut bees: Query<(Entity, &mut LivingCreature, &Transform), With<BeeKind>>,
+    mut bees: Query<(Entity, &mut LivingCreature, &Transform), With<BeeType>>,
     mut rng: Local<Option<StdRng>>,
 ) {
     if rng.is_none() {
@@ -33,17 +32,17 @@ pub fn wasp_behaviour_system(
     }
     let rng = rng.as_mut().unwrap();
 
-    for (wasp, mut wasp_creature, transform, mut target, result, mut max_speed) in wasps.iter_mut()
+    for (wasp, mut wasp_creature, transform, mut target, result) in wasps.iter_mut()
     {
-        match *wasp {
-            WaspKind::Regular => {
+        /*match *wasp {
+            EnemyType::Wasp => {
                 // ================ REGULAR BEHAVIOUR START ===============
                 if *target == NavigationTarget::None {
                     let mut nearest = None;
                     let mut nearest_dist = 1e9;
-                    for (e, _, t) in bees.iter() {
-                        let dist = t.translation.truncate().distance(transform.flat());
-                        if dist < nearest_dist {
+                    for (e, creature, t) in bees.iter() {
+                        let dist = t.flat().distance(transform.flat());
+                        if !creature.is_dead() && dist < nearest_dist {
                             nearest_dist = dist;
                             nearest = Some(e);
                         }
@@ -60,6 +59,6 @@ pub fn wasp_behaviour_system(
                 }
                 // ================ REGULAR BEHAVIOUR END ===============
             }
-        }
+        }*/
     }
 }

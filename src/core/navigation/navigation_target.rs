@@ -1,9 +1,6 @@
-use std::ops::Deref;
-
 use bevy::prelude::*;
 
 use crate::{
-    core::{MaxSpeed, Velocity},
     utils::{dist_to_segment, FlatProvider},
 };
 
@@ -16,6 +13,12 @@ pub enum NavigationTarget {
     None,
     Position(Vec2),
     Entity(Entity, f32),
+}
+
+#[derive(Component, PartialEq, Clone)]
+pub enum Faction {
+    Bees,
+    Enemies,
 }
 
 #[derive(Component, Default, Clone)]
@@ -59,7 +62,7 @@ pub fn navigation_system(
     if !graph.ready {
         return;
     }
-    
+
     let seed = (time.elapsed_seconds() * 100.0) as usize;
 
     // todo: parallel??
@@ -202,25 +205,4 @@ pub fn navigation_system(
                 }
             }
         });
-}
-
-#[derive(Component)]
-pub struct MoveToNavigationTargetBehaviour;
-
-pub fn navigation_movement_system(
-    mut agents: Query<
-        (&MaxSpeed, &mut Velocity, &Transform, &NavigationResult),
-        With<MoveToNavigationTargetBehaviour>,
-    >,
-) {
-    for (speed, mut velocity, transform, result) in agents.iter_mut() {
-        if result.target_reached {
-            velocity.value *= 0.97;
-            continue;
-        }
-
-        velocity.value = velocity
-            .value
-            .lerp(result.get_direction(transform.flat()) * speed.value, 0.03);
-    }
 }

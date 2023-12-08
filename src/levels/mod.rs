@@ -2,8 +2,8 @@ use bevy::{prelude::*, render::mesh::shape::Quad, sprite::Mesh2dHandle};
 use rand::{thread_rng, Rng};
 
 use crate::core::{
-    LivingCreature, MaxSpeed, MoveToNavigationTargetBehaviour, NavigationResult, NavigationTarget,
-    Velocity, VelocityOriented, WaspKind, MAX_VIEW_RECT,
+    LivingCreature, MoveToNavigationTargetBehaviour, NavigationResult, NavigationTarget,
+    RigidBody, SmartOrientation, EnemyType, MAX_VIEW_RECT, UniversalBehaviour, Faction,
 };
 pub struct LevelsPlugin;
 
@@ -33,34 +33,50 @@ pub fn scenario0_system(
 
     scenario.time_elapsed += time.delta_seconds();
 
-    if scenario.time_elapsed > 25.0 && scenario.wave == 0 {
+    if scenario.time_elapsed > 5.0 && scenario.wave == 0 {
         scenario.wave += 1;
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Birb, &mut meshes);
     }
     if scenario.time_elapsed > 45.0 && scenario.wave == 1 {
         scenario.wave += 1;
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
     }
     if scenario.time_elapsed > 65.0 && scenario.wave == 2 {
         scenario.wave += 1;
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
     }
-    if scenario.time_elapsed > 100.0 && scenario.wave == 2 {
+    if scenario.time_elapsed > 100.0 && scenario.wave == 3 {
         scenario.wave += 1;
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
-        spawn_wasp(&mut commands, WaspKind::Regular, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
     }
 }
 
-fn spawn_wasp(commands: &mut Commands, wasp: WaspKind, meshes: &mut Assets<Mesh>) {
+fn get_size(value: EnemyType) -> f32 {
+    match value {
+        EnemyType::Wasp => 24.0,
+        EnemyType::Birb => 48.0,
+    }
+}
+
+fn spawn_enemy(commands: &mut Commands, enemy: EnemyType, meshes: &mut Assets<Mesh>) {
     let dx = thread_rng().gen_range(-1.0..1.0);
     let dy = thread_rng().gen_range(-1.0..1.0);
     let z = thread_rng().gen_range(0.0..1.0);
@@ -81,14 +97,15 @@ fn spawn_wasp(commands: &mut Commands, wasp: WaspKind, meshes: &mut Assets<Mesh>
     commands.spawn((
         VisibilityBundle::default(),
         TransformBundle::from_transform(Transform::from_translation(position)),
-        Mesh2dHandle(meshes.add(Quad::new(Vec2::splat(24.0)).into())),
-        wasp,
-        LivingCreature::from(wasp),
+        Mesh2dHandle(meshes.add(Quad::new(Vec2::splat(get_size(enemy))).into())),
+        enemy,
+        LivingCreature::from(enemy),
+        RigidBody::from(enemy),
+        UniversalBehaviour::from(enemy),
         NavigationTarget::None,
         NavigationResult::default(),
         MoveToNavigationTargetBehaviour,
-        Velocity::default(),
-        VelocityOriented,
-        MaxSpeed { value: 64.0 },
+        SmartOrientation,
+        Faction::Enemies,
     ));
 }

@@ -3,8 +3,8 @@ use rand::{rngs::StdRng, Rng, SeedableRng};
 
 use crate::{
     core::{
-        BeeKind, Building, BuildingKind, LivingCreature, MaxSpeed, MoveToNavigationTargetBehaviour,
-        NavigationResult, NavigationTarget, Velocity, VelocityOriented,
+        BeeType, Building, BuildingKind, LivingCreature, MoveToNavigationTargetBehaviour,
+        NavigationResult, NavigationTarget, SmartOrientation, RigidBody, model::behaviours::universal_behaviour::UniversalBehaviour, Faction,
     },
     utils::FlatProvider,
 };
@@ -18,7 +18,7 @@ pub struct Nexus {
 pub fn nexus_system(
     mut commands: Commands,
     mut nexuses: Query<(&mut Building, &Transform)>,
-    bees: Query<&BeeKind>,
+    bees: Query<&BeeType>,
     mut bee_mesh: Local<Handle<Mesh>>,
     mut meshes: ResMut<Assets<Mesh>>,
     time: Res<Time>,
@@ -39,7 +39,7 @@ pub fn nexus_system(
         }
         nexus.time_bank += time.delta_seconds();
 
-        let babies = bees.iter().filter(|b| **b == BeeKind::Baby).count();
+        let babies = bees.iter().filter(|b| **b == BeeType::Baby).count();
         const MAX_BABIES: usize = 300;
 
         let cooldown = 1.0 + (babies as f32) / 4.0;
@@ -63,14 +63,15 @@ pub fn nexus_system(
                     transform.flat().extend(0.0) + Vec3::new(x, y, z),
                 )),
                 Mesh2dHandle(bee_mesh.clone()),
-                BeeKind::Baby,
-                LivingCreature::from(BeeKind::Baby),
+                BeeType::Baby,
+                LivingCreature::from(BeeType::Baby),
+                RigidBody::from(BeeType::Baby),
+                UniversalBehaviour::from(BeeType::Baby),
                 NavigationTarget::None,
                 NavigationResult::default(),
                 MoveToNavigationTargetBehaviour,
-                Velocity::default(),
-                VelocityOriented,
-                MaxSpeed { value: 64.0 },
+                SmartOrientation,
+                Faction::Bees,
             ));
         }
 
@@ -82,14 +83,15 @@ pub fn nexus_system(
                     transform.flat().extend(1.0),
                 )),
                 Mesh2dHandle(bee_mesh.clone()),
-                BeeKind::Queen,
-                LivingCreature::from(BeeKind::Queen),
+                BeeType::Queen,
+                LivingCreature::from(BeeType::Queen),
+                RigidBody::from(BeeType::Queen),
+                UniversalBehaviour::from(BeeType::Queen),
                 NavigationTarget::None,
                 NavigationResult::default(),
                 MoveToNavigationTargetBehaviour,
-                Velocity::default(),
-                VelocityOriented,
-                MaxSpeed { value: 32.0 },
+                SmartOrientation,
+                Faction::Bees,
             ));
         }
     }

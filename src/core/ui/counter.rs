@@ -1,4 +1,4 @@
-use crate::core::{BeeKind, BeeMaterial};
+use crate::core::{BeeType, UniversalMaterial};
 use bevy::prelude::*;
 use strum::IntoEnumIterator;
 
@@ -6,12 +6,12 @@ use super::constants;
 
 #[derive(Component)]
 pub struct BeeCounter {
-    kind: BeeKind,
+    kind: BeeType,
 }
 
 pub fn setup_bee_counters(
     mut commands: Commands,
-    mut materials: ResMut<Assets<BeeMaterial>>,
+    mut materials: ResMut<Assets<UniversalMaterial>>,
     mut asset_server: ResMut<AssetServer>,
 ) {
     commands
@@ -38,7 +38,7 @@ pub fn setup_bee_counters(
                     ..Default::default()
                 })
                 .with_children(|builder| {
-                    for kind in BeeKind::iter() {
+                    for kind in BeeType::iter() {
                         spawn_bee_counter(builder, kind, &mut asset_server, &mut materials)
                     }
                 });
@@ -47,9 +47,9 @@ pub fn setup_bee_counters(
 
 fn spawn_bee_counter(
     builder: &mut ChildBuilder,
-    kind: BeeKind,
+    kind: BeeType,
     asset_server: &mut AssetServer,
-    materials: &mut Assets<BeeMaterial>,
+    materials: &mut Assets<UniversalMaterial>,
 ) {
     builder
         .spawn(NodeBundle {
@@ -69,7 +69,7 @@ fn spawn_bee_counter(
             ..default()
         })
         .with_children(|builder| {
-            builder.spawn((MaterialNodeBundle::<BeeMaterial> {
+            builder.spawn((MaterialNodeBundle::<UniversalMaterial> {
                 style: Style {
                     width: Val::Px(60.0),
                     height: Val::Px(60.0),
@@ -111,7 +111,7 @@ fn spawn_bee_counter(
         });
 }
 
-pub fn update_counter(bees: Query<&BeeKind>, mut counters: Query<(&BeeCounter, &mut Text)>) {
+pub fn update_counter(bees: Query<&BeeType>, mut counters: Query<(&BeeCounter, &mut Text)>) {
     for (counter, mut text) in counters.iter_mut() {
         let bees_of_kind = bees.iter().filter(|bee| **bee == counter.kind).count();
         text.sections[0].value = bees_of_kind.to_string();
