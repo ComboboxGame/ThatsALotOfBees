@@ -16,6 +16,8 @@ mod building_menu;
 mod title;
 mod upgrade_menu;
 
+pub use upgrade_menu::order_button_system;
+
 #[derive(Component, Default)]
 pub struct Menu {
     pub focus_building: Option<usize>,
@@ -95,7 +97,9 @@ pub fn menu_update(
                 if building.kind == BuildingKind::None {
                     commands.entity(content).with_children(spawn_building_menu);
                 } else {
-                    commands.entity(content).with_children(spawn_upgrage_menu);
+                    commands
+                        .entity(content)
+                        .with_children(|e| spawn_upgrage_menu(e, building_idx));
                 };
             }
         }

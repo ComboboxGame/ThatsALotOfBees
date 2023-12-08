@@ -1,6 +1,9 @@
 use bevy::{prelude::*, render::mesh::shape::Quad, sprite::Mesh2dHandle};
+use rand::{rngs::StdRng, SeedableRng, Rng};
 
-use crate::core::{AppState, MouseState};
+use crate::{core::{AppState, BeeBundle}, utils::FlatProvider};
+
+use super::BeeType;
 
 pub const HIVE_WORLD_SIZE: f32 = 320.0;
 pub const HIVE_IMAGE_SIZE: usize = 160;
@@ -61,8 +64,8 @@ pub fn get_building_image_name(kind: BuildingKind) -> &'static str {
         BuildingKind::Nexus => "images/Nexus.png",
         BuildingKind::Storage => "images/Nexus.png",
         BuildingKind::WaxReactor => "images/Nexus.png",
-        BuildingKind::Armory => "images/Nexus.png",
-        BuildingKind::Workshop => "images/Nexus.png",
+        BuildingKind::Armory => "images/Armory.png",
+        BuildingKind::Workshop => "images/Workshop.png",
         BuildingKind::BuilderAcademy => "images/Nexus.png",
     }
 }
@@ -82,10 +85,26 @@ impl Default for HiveBuildings {
 
 #[derive(Component)]
 pub struct Building {
+
     pub kind: BuildingKind,
     pub index: usize,
-    pub time_bank: f32,
+
+    pub order_time: f32,
+    pub order_time_remaining: f32,
+
+    pub orders_count: u32,
+
+    // todo??? remove this field
     pub queen_spawned: bool,
+}
+
+impl Building {
+    pub fn order(&mut self) {
+        if self.orders_count == 0 {
+            self.order_time_remaining = self.order_time;
+        }
+        self.orders_count += 1;
+    }
 }
 
 pub fn update_buildings_system(
@@ -116,8 +135,10 @@ pub fn update_buildings_system(
             Building {
                 kind: buildings.buildings[index],
                 index,
-                time_bank: 0.0,
                 queen_spawned: false,
+                order_time: 2.0,
+                order_time_remaining: 0.0,
+                orders_count: 0,
             },
             TransformBundle::from_transform(Transform::from_translation(
                 get_building_position(index).extend(-5.0),
@@ -128,5 +149,65 @@ pub fn update_buildings_system(
             )),
             Mesh2dHandle(meshes.add(Quad::new(Vec2::new(64.0, 64.0)).into())),
         ));
+    }
+}
+
+pub fn buildings_system(
+    mut commands: Commands,
+    mut buildings: Query<(&mut Building, &Transform)>,
+    mut bee_mesh: Local<Handle<Mesh>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    time: Res<Time>,
+    mut rng: Local<Option<StdRng>>,
+) {
+    if rng.is_none() {
+        *rng = Some(StdRng::seed_from_u64(0));
+    }
+    let rng = rng.as_mut().unwrap();
+
+    if *bee_mesh == Handle::default() {
+        *bee_mesh = meshes.add(Quad::new(Vec2::new(24.0, 24.0)).into());
+    }
+
+    for (mut building, transform) in buildings.iter_mut() {
+
+        if building.kind == BuildingKind::Nexus && !building.queen_spawned {
+            building.queen_spawned = true;
+            commands.spawn(BeeBundle::from((BeeType::Queen, transform.flat())));
+        }
+
+        if building.orders_count == 0 {
+            continue;
+        }
+
+        building.order_time_remaining -= time.delta_seconds();
+
+        if building.order_time_remaining > 0.0 {
+            continue;
+        }
+
+        building.orders_count -= 1;
+        if building.orders_count > 0 {
+            building.order_time_remaining += building.order_time;
+        }
+        
+        match building.kind {
+            BuildingKind::None => {},
+            BuildingKind::Nexus => {
+                // spawn baby
+                let (mut x, mut y) = (100.0, 100.0);
+                while x * x + y * y > 20.0 * 20.0 {
+                    (x, y) = (rng.gen_range(-20.0..20.0), rng.gen_range(-20.0..20.0));
+                }
+                commands.spawn(BeeBundle::from((BeeType::Baby, Vec2::new(x, y) + transform.flat())));
+            },
+            BuildingKind::Storage => todo!(),
+            BuildingKind::WaxReactor => todo!(),
+            BuildingKind::Armory => todo!(),
+            BuildingKind::Workshop => todo!(),
+            BuildingKind::BuilderAcademy => todo!(),
+        }
+
+        
     }
 }
