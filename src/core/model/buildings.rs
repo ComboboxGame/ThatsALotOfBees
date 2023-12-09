@@ -286,10 +286,10 @@ pub fn update_buildings_system(
 
         if let Some(material) = materials.get_mut(material) {
             if building.order_time_remaining > 0.0 || building.orders_count > 0 {
-                material.progress =
+                material.progress.x =
                     1.0 - (building.order_time_remaining / building.order_time).max(0.0);
             } else {
-                material.progress = 0.0;
+                material.progress = Vec4::splat(0.0);
             }
         }
     }
@@ -322,12 +322,12 @@ pub fn update_buildings_system(
             )),
             VisibilityBundle::default(),
             materials.add(BuildingMaterial {
-                progress: 0.0,
+                progress: Vec4::ZERO,
                 texture: Some(texture),
                 background: Some(background),
                 selected: Some(selected),
                 hovered: Some(hovered),
-                state: 0,
+                state: UVec4::ZERO,
             }),
             Mesh2dHandle(meshes.add(Quad::new(Vec2::new(64.0, 64.0)).into())),
         ));
@@ -470,7 +470,7 @@ pub fn buildings_system(
                 )));
                 success = true;
             }
-            BuildingKind::Storage => todo!(),
+            BuildingKind::Storage => {},
             BuildingKind::WaxReactor => {
                 let cost = hive_buildings.get_order_cost(BuildingKind::WaxReactor);
                 currency.stored[1] += cost[1];

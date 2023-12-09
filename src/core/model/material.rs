@@ -56,9 +56,9 @@ pub struct UniversalMaterial {
 #[derive(AsBindGroup, Debug, Clone, Reflect, Asset, Default)]
 pub struct BuildingMaterial {
     #[uniform(0)]
-    pub progress: f32,
+    pub progress: Vec4,
     #[uniform(1)]
-    pub state: u32,
+    pub state: UVec4,
 
     #[texture(2)]
     #[sampler(3)]

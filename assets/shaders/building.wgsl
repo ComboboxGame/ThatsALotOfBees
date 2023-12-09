@@ -1,8 +1,8 @@
 #import bevy_sprite::mesh2d_vertex_output::VertexOutput
 #import game::common::mix_colors
 
-@group(1) @binding(0) var<uniform> progress: f32;
-@group(1) @binding(1) var<uniform> state: u32;
+@group(1) @binding(0) var<uniform> progress: vec4<f32>;
+@group(1) @binding(1) var<uniform> state: vec4<u32>;
 @group(1) @binding(2) var base_color_texture: texture_2d<f32>;
 @group(1) @binding(3) var base_color_sampler: sampler;
 @group(1) @binding(4) var background_texture: texture_2d<f32>;
@@ -20,15 +20,15 @@ fn fragment(mesh: VertexOutput) -> @location(0) vec4<f32> {
     let d = textureSample(selected_texture, selected_sampler, mesh.uv);
 
     var color = vec4(0.0);
-    if 1.0 - mesh.uv.y < progress {
+    if 1.0 - mesh.uv.y < progress.x {
         color = mix_colors(color, a);
     }
 
-    if state != 0u {
-        if (state & 1u) == 1u {
+    if state.x != 0u {
+        if (state.x & 1u) == 1u {
             color = mix_colors(color, c);
         }
-        if (state & 2u) == 2u {
+        if (state.x & 2u) == 2u {
             color = mix_colors(color, d);
         }
     }

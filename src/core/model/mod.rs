@@ -90,7 +90,7 @@ fn enetered_game(
     *currency = CurrencyStorage::default();
 
     commands.spawn(BeeBundle::from((BeeType::Queen, get_building_position(8))));
-    
+
     spawn_hive_visual(
         &mut commands,
         &mut meshes,

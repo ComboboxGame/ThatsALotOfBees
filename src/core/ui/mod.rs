@@ -242,13 +242,13 @@ fn highlight_hive(
                 };
 
                 if let Some(material) = materials.get_mut(material) {
-                    if selected != ((material.state & 2) == 2)
+                    if selected != ((material.state.x & 2) == 2)
                         && building.kind != BuildingKind::Storage
                     {
                         if selected {
-                            material.state |= 2;
+                            material.state.x |= 2;
                         } else {
-                            material.state &= !2;
+                            material.state.x &= !2;
                         }
                     }
                 }
@@ -262,9 +262,9 @@ fn highlight_hive(
 
             if let Some(material) = materials.get_mut(material) {
                 if mouse_position.distance(building_position) < 32.0 {
-                    material.state |= 1;
+                    material.state.x |= 1;
                 } else {
-                    material.state &= !1;
+                    material.state.x &= !1;
                 }
             }
         }
