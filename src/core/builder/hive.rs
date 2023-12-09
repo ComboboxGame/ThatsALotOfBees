@@ -7,6 +7,9 @@ pub struct HiveVisual;
 pub struct BackgroundVisual;
 
 #[derive(Component)]
+pub struct BackgroundVisual1;
+
+#[derive(Component)]
 pub struct BackgroundVisual2;
 
 #[derive(Component)]
@@ -35,16 +38,24 @@ pub fn spawn_hive_visual(
     ));
 
     commands.spawn((
-        materials.add(ColorMaterial::from(asset_server.load("images/Hills.png"))),
-        Mesh2dHandle(meshes.add(Quad::new(Vec2::new(256.0, 128.0)).into())),
+        materials.add(ColorMaterial::from(asset_server.load("images/Hills1.png"))),
+        Mesh2dHandle(meshes.add(Quad::new(Vec2::new(256.0, 180.0)).into())),
         TransformBundle::from_transform(Transform::from_xyz(0., 0., -20.)),
         VisibilityBundle::default(),
         BackgroundVisual,
     ));
 
     commands.spawn((
+        materials.add(ColorMaterial::from(asset_server.load("images/Hills2.png"))),
+        Mesh2dHandle(meshes.add(Quad::new(Vec2::new(256.0, 180.0)).into())),
+        TransformBundle::from_transform(Transform::from_xyz(0., 0., -21.)),
+        VisibilityBundle::default(),
+        BackgroundVisual1,
+    ));
+
+    commands.spawn((
         materials.add(ColorMaterial::from(asset_server.load("images/Clouds.png"))),
-        Mesh2dHandle(meshes.add(Quad::new(Vec2::new(256.0, 128.0)).into())),
+        Mesh2dHandle(meshes.add(Quad::new(Vec2::new(256.0, 140.0)).into())),
         TransformBundle::from_transform(Transform::from_xyz(0., 0., -22.)),
         VisibilityBundle::default(),
         BackgroundVisual2,

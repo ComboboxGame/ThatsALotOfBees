@@ -31,7 +31,8 @@ fn main() {
 
     app.add_systems(PostUpdate, cleanup.run_if(state_changed::<AppState>()));
 
-    if utils::is_local_build() {
+    //if utils::is_local_build()
+    {
         app.add_plugins(FpsPlugin);
         app.add_systems(Startup, go_to_game_immediately);
         app.add_systems(Update, state_debug_system);
@@ -91,7 +92,21 @@ fn preload_assets(
     let names = vec![
         "images/Tree.png",
         "images/Clouds.png",
-        "images/Hills.png",
+        "images/Hills1.png",
+        "images/Hills2.png",
+        "images/DisabledButton.png",
+        "images/EnabledButton.png",
+        "images/DisabledHoveredButton.png",
+        "images/HoveredButton.png",
+        "images/NexusMenu.png",
+        "images/MagicWaxReactorMenu.png",
+        "images/WaxReactorMenu.png",
+        "images/ArmoryMenu.png",
+        "images/WorkshopMenu.png",
+        "images/ResourcesMenu.png",
+        "images/CounterMenu.png",
+        "images/BuildMenu.png",
+        "images/Hive.png",
     ];
 
     for name in names {
