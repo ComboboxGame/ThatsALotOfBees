@@ -144,10 +144,10 @@ impl HiveBuildings {
         match kind {
             BuildingKind::None => CurrencyValues::default(),
             BuildingKind::Nexus => CurrencyValues::default(),
-            BuildingKind::Storage => [50, 0, 0],
-            BuildingKind::WaxReactor => [99, 19, 0],
-            BuildingKind::Armory => [8, 8, 0],
             BuildingKind::Workshop => [8, 2, 0],
+            BuildingKind::Armory => [8, 8, 0],
+            BuildingKind::Storage => [50, 10, 0],
+            BuildingKind::WaxReactor => [99, 19, 0],
             BuildingKind::MagicWaxReactor => [0, 99, 19],
         }
     }
@@ -174,8 +174,8 @@ impl HiveBuildings {
             BuildingKind::Nexus => [1, 0, 0],
             BuildingKind::Storage => CurrencyValues::default(),
             BuildingKind::Armory => [
-                8 * (self.defender_lvl + 1) as u64,
                 0,
+                4 * (self.defender_lvl + 1) as u64,
                 1 * (self.defender_lvl + 1) as u64,
             ],
             BuildingKind::Workshop => [

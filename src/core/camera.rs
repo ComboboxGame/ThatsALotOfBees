@@ -22,9 +22,17 @@ fn get_view_rect(camera: &Camera, camera_transform: &Transform) -> Rect {
     let max = matrix.project_point3(Vec2::ONE.extend(-1.0)).flat();
     let min = matrix.project_point3(Vec2::NEG_ONE.extend(-1.0)).flat();
 
-    Rect {
-        min: min.min(max),
-        max: max.max(min),
+    if min.is_nan() || max.is_nan() {
+        Rect {
+            min: Vec2::splat(-200.0),
+            max: Vec2::splat(200.0),
+        }
+    }
+    else {
+        Rect {
+            min: min.min(max),
+            max: max.max(min),
+        }
     }
 }
 
@@ -90,7 +98,7 @@ pub fn in_game_camera_system(
                 let scroll_amount = if e.unit == MouseScrollUnit::Line {
                     e.y
                 } else {
-                    e.y / 16.0
+                    e.y / 32.0
                 };
                 *target_zoom.as_mut().unwrap() /= 1.1f32.powf(scroll_amount);
             }
@@ -125,6 +133,9 @@ pub fn in_game_camera_system(
 
         for e in mouse_motion_events.read() {
             if mouse.pressed(MouseButton::Left) {
+                if e.delta.x.is_nan() || e.delta.y.is_nan() {
+                    continue;
+                }
                 pos.x -= e.delta.x * transform.scale.x;
                 pos.y += e.delta.y * transform.scale.y;
             }

@@ -77,11 +77,12 @@ impl Default for CurrencyStorage {
     fn default() -> Self {
         Self {
             stored: if utils::is_local_build() {
-                [1000, 1000, 1000]
+                //[1000, 1000, 1000]
+                [5, 0, 0]
             } else {
                 [0; CURRENCY_NUM]
             },
-            max_stored: [5000, 1000000, 1000000],
+            max_stored: [50, 1000000, 1000000],
             estimated_inflow: [0; CURRENCY_NUM],
         }
     }

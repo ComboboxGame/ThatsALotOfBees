@@ -9,6 +9,7 @@ use super::{BeeType, EnemyType};
 pub const BEE_ATLAS_HANDLE: Handle<Image> = Handle::weak_from_u128(1311196983220122547);
 pub const WASP_ATLAS_HANDLE: Handle<Image> = Handle::weak_from_u128(1311192983220225545);
 pub const BIRB_ATLAS_HANDLE: Handle<Image> = Handle::weak_from_u128(1512192983220215541);
+pub const BUMBLE_ATLAS_HANDLE: Handle<Image> = Handle::weak_from_u128(1512192983220115541);
 
 #[derive(Clone, ShaderType, Reflect, Debug)]
 pub struct BeeMaterialUniform {
@@ -115,7 +116,7 @@ impl From<BeeType> for UniversalMaterial {
 impl From<EnemyType> for UniversalMaterial {
     fn from(kind: EnemyType) -> Self {
         match kind {
-            EnemyType::Wasp => UniversalMaterial {
+            EnemyType::Wasp(lvl) => UniversalMaterial {
                 props: BeeMaterialUniform {
                     color: Color::WHITE,
                     tiles_x: 4,
@@ -123,15 +124,15 @@ impl From<EnemyType> for UniversalMaterial {
                     shape: 0,
                     wing_states: 2,
                     wing_shape: 0,
-                    overlay_x: 3,
-                    overlay_y: 3,
+                    overlay_x: [3, 0][lvl as usize],
+                    overlay_y: [3, 2][lvl as usize],
                     phase: rand::thread_rng().gen_range(0.0..16.0),
                     damage_time: -1.0,
                     upgrade_time: -1.0,
                 },
                 texture: Some(WASP_ATLAS_HANDLE),
             },
-            EnemyType::Birb => UniversalMaterial {
+            EnemyType::Birb(lvl) => UniversalMaterial {
                 props: BeeMaterialUniform {
                     color: Color::WHITE,
                     tiles_x: 5,
@@ -139,13 +140,29 @@ impl From<EnemyType> for UniversalMaterial {
                     shape: 0,
                     wing_states: 5,
                     wing_shape: 0,
-                    overlay_x: 2,
+                    overlay_x: [4, 3, 2][lvl as usize],
                     overlay_y: 0,
                     phase: rand::thread_rng().gen_range(0.0..16.0),
                     damage_time: -1.0,
                     upgrade_time: -1.0,
                 },
                 texture: Some(BIRB_ATLAS_HANDLE),
+            },
+            EnemyType::Bumble(lvl) => UniversalMaterial {
+                props: BeeMaterialUniform {
+                    color: Color::WHITE,
+                    tiles_x: 4,
+                    tiles_y: 2,
+                    shape: 0,
+                    wing_states: 2,
+                    wing_shape: 0,
+                    overlay_x: lvl,
+                    overlay_y: 0,
+                    phase: rand::thread_rng().gen_range(0.0..16.0),
+                    damage_time: -1.0,
+                    upgrade_time: -1.0,
+                },
+                texture: Some(BUMBLE_ATLAS_HANDLE),
             },
         }
     }
@@ -186,12 +203,14 @@ pub fn prepare_atlases_system(
     mut bee_atlas: Local<Handle<Image>>,
     mut wasp_atlas: Local<Handle<Image>>,
     mut birb_atlas: Local<Handle<Image>>,
+    mut bumble_atlas: Local<Handle<Image>>,
 
     mut bee_atlas_done: Local<bool>,
     mut wasp_atlas_done: Local<bool>,
     mut birb_atlas_done: Local<bool>,
+    mut bumble_atlas_done: Local<bool>,
 ) {
-    if *wasp_atlas_done && *bee_atlas_done && *birb_atlas_done {
+    if *wasp_atlas_done && *bee_atlas_done && *birb_atlas_done && *bumble_atlas_done {
         return;
     }
 
@@ -203,6 +222,9 @@ pub fn prepare_atlases_system(
     }
     if *birb_atlas == Handle::default() && !*birb_atlas_done {
         *birb_atlas = asset_server.load("images/Birb.png");
+    }
+    if *bumble_atlas == Handle::default() && !*bumble_atlas_done {
+        *bumble_atlas = asset_server.load("images/Bumble.png");
     }
 
     let bee_atlas_ready = images.get(bee_atlas.clone()).is_some();
@@ -227,5 +249,13 @@ pub fn prepare_atlases_system(
         images.insert(BIRB_ATLAS_HANDLE, birb_atlas_image);
         *birb_atlas_done = true;
         *birb_atlas = Handle::default();
+    }
+
+    let bumble_atlas_ready = images.get(bumble_atlas.clone()).is_some();
+    if bumble_atlas_ready && !*bumble_atlas_done {
+        let bumble_atlas_image = images.get(bumble_atlas.clone()).unwrap().clone();
+        images.insert(BUMBLE_ATLAS_HANDLE, bumble_atlas_image);
+        *bumble_atlas_done = true;
+        *bumble_atlas = Handle::default();
     }
 }

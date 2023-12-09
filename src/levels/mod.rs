@@ -16,11 +16,12 @@ impl Plugin for LevelsPlugin {
 #[derive(Component, Default)]
 pub struct Scenario0 {
     pub time_elapsed: f32,
-    pub wave: u32,
+    pub wave: usize,
 }
 
 pub fn scenario0_system(
     mut scenarios: Query<(Entity, &mut Scenario0)>,
+    enemis: Query<&EnemyType>,
     time: Res<Time>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -31,52 +32,68 @@ pub fn scenario0_system(
 
     let (_, mut scenario) = scenarios.single_mut();
 
-    scenario.time_elapsed += time.delta_seconds() / 20.0;
+    if enemis.is_empty() {
+        scenario.time_elapsed += time.delta_seconds();
+    }
 
-    if scenario.time_elapsed > 5.0 && scenario.wave == 0 {
-        scenario.wave += 1;
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Birb, &mut meshes);
+    if scenario.time_elapsed < 60.0 {
+        return;
     }
-    if scenario.time_elapsed > 45.0 && scenario.wave == 1 {
-        scenario.wave += 1;
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
+
+    scenario.time_elapsed = 0.0;
+
+    let waves = vec![
+        vec![
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+        ],
+        vec![
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+        ],
+        vec![
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+        ],
+        vec![
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+        ],
+        vec![
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 0),
+        ],
+    ];
+
+    for (enemy, drop) in waves[scenario.wave].iter() {
+        spawn_enemy(&mut commands, *enemy, &mut meshes, *drop);
     }
-    if scenario.time_elapsed > 65.0 && scenario.wave == 2 {
+
+    if scenario.wave + 1 < waves.len() {
         scenario.wave += 1;
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
     }
-    if scenario.time_elapsed > 100.0 && scenario.wave == 3 {
-        scenario.wave += 1;
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-        spawn_enemy(&mut commands, EnemyType::Wasp, &mut meshes);
-    }
+    
 }
 
 fn get_size(value: EnemyType) -> f32 {
     match value {
-        EnemyType::Wasp => 24.0,
-        EnemyType::Birb => 48.0,
+        EnemyType::Wasp(_) => 24.0,
+        EnemyType::Birb(_)=> 48.0,
+        EnemyType::Bumble(_)=> 48.0,
     }
 }
 
-fn spawn_enemy(commands: &mut Commands, enemy: EnemyType, meshes: &mut Assets<Mesh>) {
+fn spawn_enemy(commands: &mut Commands, enemy: EnemyType, meshes: &mut Assets<Mesh>, drop: u32) {
     let dx = thread_rng().gen_range(-1.0..1.0);
     let dy = thread_rng().gen_range(-1.0..1.0);
     let z = thread_rng().gen_range(0.0..1.0);
@@ -99,7 +116,10 @@ fn spawn_enemy(commands: &mut Commands, enemy: EnemyType, meshes: &mut Assets<Me
         TransformBundle::from_transform(Transform::from_translation(position)),
         Mesh2dHandle(meshes.add(Quad::new(Vec2::splat(get_size(enemy))).into())),
         enemy,
-        LivingCreature::from(enemy),
+        LivingCreature {
+            currency_drop: [0, 0, drop as u64],
+            ..LivingCreature::from(enemy)
+        },
         RigidBody::from(enemy),
         UniversalBehaviour::from(enemy),
         NavigationTarget::None,

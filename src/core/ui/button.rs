@@ -58,7 +58,7 @@ pub fn spawn_button<T: Bundle, C: Bundle>(
                     color: constants::border_color(),
                     ..Default::default()
                 },
-            ),RelativePixelFont {size: 8}));
+            ),RelativePixelFont {size: 10}));
             if let Some(child) = child {
                 builder.spawn(child);
             }

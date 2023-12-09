@@ -148,7 +148,7 @@ pub fn spawn_upgrage_menu(
                 } else {
                     Some(cost[2])
                 };
-                let mut b = if cost[1] != 0 {
+                let mut b = if cost[1] != 0 && (cost[0] != 0) {
                     Some(cost[1])
                 } else if cost[2] != 0 && (cost[1] != 0 || cost[0] != 0) {
                     Some(cost[2])

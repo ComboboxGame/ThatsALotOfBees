@@ -14,6 +14,7 @@ impl Plugin for InputHelperPlugin {
 #[derive(Resource, Default)]
 pub struct MouseState {
     pub position: Option<Vec2>,
+    pub screen_position: Option<Vec2>,
 }
 
 fn update_mouse_state_system(
@@ -31,6 +32,7 @@ fn update_mouse_state_system(
             let y = window.height() / 2.0 - e.position.y;
             let translation = camera.1.flat();
             let scale = camera.1.scale.truncate();
+            mouse_state.screen_position = Some(e.position);
             mouse_state.position = Some(translation + Vec2::new(x, y) * scale);
         }
     }

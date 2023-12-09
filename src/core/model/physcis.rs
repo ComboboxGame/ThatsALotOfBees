@@ -57,16 +57,22 @@ impl From<BeeType> for RigidBody {
 impl From<EnemyType> for RigidBody {
     fn from(value: EnemyType) -> Self {
         match value {
-            EnemyType::Wasp => RigidBody {
+            EnemyType::Wasp(lvl) => RigidBody {
                 radius: 9.0,
                 max_valocity: 35.0,
                 max_acceleartion: 300.0,
                 ..Default::default()
             },
-            EnemyType::Birb => RigidBody {
+            EnemyType::Birb(lvl) => RigidBody {
                 radius: 14.0,
-                max_valocity: 35.0,
-                max_acceleartion: 300.0,
+                max_valocity: 25.0,
+                max_acceleartion: 150.0,
+                ..Default::default()
+            },
+            EnemyType::Bumble(lvl) => RigidBody {
+                radius: 14.0,
+                max_valocity: 15.0,
+                max_acceleartion: 50.0,
                 ..Default::default()
             },
         }
@@ -88,7 +94,7 @@ pub fn integration_system(
     for (mut rb, mut transform, maybe_creature) in rigid_bodies.iter_mut() {
         if let Some(creature) = maybe_creature {
             if creature.is_dead() {
-                continue;
+                //continue;
             }
         }
 
@@ -138,15 +144,15 @@ pub fn collision_system(
             if blc.is_dead() || dist_sqr > total_radius.powi(2) {
                 continue;
             }
-
             let penetration = total_radius - dist_sqr.sqrt();
+            
+            let ab = (bt.flat() - at.flat()).normalize();
 
             if penetration > 0.01 {
-                arb.pseudo_velocity -= penetration / time.delta_seconds() * 0.2;
-                brb.pseudo_velocity += penetration / time.delta_seconds() * 0.2;
+                arb.pseudo_velocity -= penetration / time.delta_seconds() * 0.2 * ab;
+                brb.pseudo_velocity += penetration / time.delta_seconds() * 0.2 * ab;
             }
 
-            let ab = (bt.flat() - at.flat()).normalize();
 
             let m1 = arb.radius.powi(2);
             let m2 = brb.radius.powi(2);
@@ -214,12 +220,16 @@ pub struct MoveToNavigationTargetBehaviour;
 
 pub fn move_to_target_system(
     mut agents: Query<
-        (&mut RigidBody, &Transform, &NavigationResult),
+        (&mut RigidBody, &Transform, &NavigationResult, &LivingCreature),
         With<MoveToNavigationTargetBehaviour>,
     >,
     time: Res<Time>,
 ) {
-    for (mut rb, transform, result) in agents.iter_mut() {
+    for (mut rb, transform, result, creature) in agents.iter_mut() {
+        if creature.is_dead() {
+            continue;
+        }
+        
         let target_velocity = result.get_direction(transform.flat()) * rb.max_valocity;
 
         let mut delta_velocity = target_velocity - rb.velocity;

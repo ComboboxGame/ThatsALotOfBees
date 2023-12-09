@@ -103,7 +103,7 @@ impl From<BeeType> for UniversalBehaviour {
 impl From<EnemyType> for UniversalBehaviour {
     fn from(value: EnemyType) -> Self {
         match value {
-            EnemyType::Wasp | EnemyType::Birb => UniversalBehaviour {
+            EnemyType::Wasp(lvl) | EnemyType::Birb(lvl) | EnemyType::Bumble(lvl) => UniversalBehaviour {
                 max_wonder_distance_to_hive: 200.0,
                 min_wonder_distance_to_hive: 20.0,
                 min_wonder_distance: 90.0,

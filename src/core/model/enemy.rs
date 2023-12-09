@@ -4,11 +4,11 @@ use bevy::prelude::*;
 
 use strum_macros::EnumIter;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Default, Debug, EnumIter, Component)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, EnumIter, Component)]
 pub enum EnemyType {
-    #[default]
-    Wasp,
-    Birb,
+    Wasp(u32),
+    Birb(u32),
+    Bumble(u32),
 }
 
 pub fn update_wasp_material_system(

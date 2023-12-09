@@ -50,22 +50,29 @@ fn camera_setup(mut commands: Commands) {
 
 pub fn cleanup(
     everything: Query<Entity, Or<(With<Mesh2dHandle>, With<Style>)>>,
+    scenarios: Query<Entity, With<Scenario0>>,
     other: Query<Entity, (Without<Mesh2dHandle>, Without<Style>)>,
-
+    state: Res<State<AppState>>,
     mut commands: Commands,
 ) {
     println!("Cleanup");
     for e in everything.iter() {
         commands.entity(e).despawn();
     }
+    if *state.get() == AppState::MainMenu {
+        for e in scenarios.iter() {
+            commands.entity(e).despawn();
+        }
+    }
     for o in other.iter() {
         println!("{:?}", o);
     }
 }
 
-fn go_to_game_immediately(mut next_state: ResMut<NextState<AppState>>) {
+fn go_to_game_immediately(mut next_state: ResMut<NextState<AppState>>, mut commands: Commands) {
     println!("Go to game");
     next_state.set(AppState::InGame);
+    commands.spawn(Scenario0::default());
 }
 
 fn state_debug_system(
