@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::core::{BeeType, EnemyType, LivingCreature, CurrencyGainPerMinute, UniversalMaterial};
+use crate::core::{BeeType, CurrencyGainPerMinute, EnemyType, LivingCreature, UniversalMaterial};
 
 use super::UniversalBehaviour;
 
@@ -11,7 +11,7 @@ pub fn baby_behaviour_system(
             &mut LivingCreature,
             &mut UniversalBehaviour,
             &mut CurrencyGainPerMinute,
-            &Handle<UniversalMaterial>
+            &Handle<UniversalMaterial>,
         ),
         Without<EnemyType>,
     >,
@@ -21,7 +21,7 @@ pub fn baby_behaviour_system(
     for (mut bee, mut living_creature, mut behaviour, mut gain, material) in bees.iter_mut() {
         match *bee {
             BeeType::Baby => {
-                if living_creature.time_alive > 12.0 {
+                if living_creature.time_alive > 15.0 {
                     *bee = BeeType::Regular;
                     *living_creature = LivingCreature::from(BeeType::Regular);
                     *behaviour = UniversalBehaviour::from(BeeType::Regular);

@@ -24,19 +24,20 @@ pub fn spawn_button<T: Bundle>(builder: &mut ChildBuilder, title: &str, componen
                     ..Default::default()
                 },
                 border_color: BorderColor(constants::border_color()),
-                background_color: BackgroundColor(constants::button_color()),
+                //background_color: BackgroundColor(constants::button_color()),
                 ..Default::default()
             },
         ))
         .with_children(|builder| {
-            builder.spawn(TextBundle::from_section(
+            builder.spawn((TextBundle::from_section(
                 title,
                 TextStyle {
+                    font: FONT_HANDLE,
                     font_size: 24.,
                     color: constants::border_color(),
                     ..Default::default()
                 },
-            ));
+            ), RelativePixelFont {size: 12.0}));
         });
 }
 

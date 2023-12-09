@@ -45,13 +45,21 @@ fn clamp_to_rect(pos: Vec2, view_half_size: Vec2, rect: Rect, factor: f32) -> Ve
 }
 
 pub fn in_game_camera_system(
-    mut cameras: Query<(&Camera, &mut Transform), (Without<BackgroundVisual>, Without<BackgroundVisual2>)>,
+    mut cameras: Query<
+        (&Camera, &mut Transform),
+        (Without<BackgroundVisual>, Without<BackgroundVisual2>),
+    >,
     mut mouse_motion_events: EventReader<MouseMotion>,
     mut mouse_wheel_events: EventReader<MouseWheel>,
-    mut background_visual: Query<&mut Transform, (With<BackgroundVisual>, Without<BackgroundVisual2>)>,
-    mut background_visual2: Query<&mut Transform, (With<BackgroundVisual2>, Without<BackgroundVisual>)>,
+    mut background_visual: Query<
+        &mut Transform,
+        (With<BackgroundVisual>, Without<BackgroundVisual2>),
+    >,
+    mut background_visual2: Query<
+        &mut Transform,
+        (With<BackgroundVisual2>, Without<BackgroundVisual>),
+    >,
     mouse: Res<Input<MouseButton>>,
-    windows: Query<&Window>,
     mut target_zoom: Local<Option<f32>>,
     time: Res<Time>,
 ) {
@@ -59,7 +67,10 @@ pub fn in_game_camera_system(
         *target_zoom = Some(1.0);
     }
 
-    let _window = windows.single();
+    if background_visual.is_empty() || background_visual2.is_empty() {
+        return;
+    }
+
     let mut background_visual = background_visual.single_mut();
     let mut background_visual2 = background_visual2.single_mut();
 

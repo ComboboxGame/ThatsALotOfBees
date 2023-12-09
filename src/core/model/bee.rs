@@ -1,6 +1,9 @@
-use crate::core::{NavigationTarget, NavigationResult, Faction};
+use crate::core::{Faction, NavigationResult, NavigationTarget};
 
-use super::{UniversalMaterial, LivingCreature, RigidBody, UniversalBehaviour, MoveToNavigationTargetBehaviour, SmartOrientation, BEE_MESH, CurrencyGainPerMinute};
+use super::{
+    CurrencyGainPerMinute, LivingCreature, MoveToNavigationTargetBehaviour, RigidBody,
+    SmartOrientation, UniversalBehaviour, UniversalMaterial, BEE_MESH,
+};
 
 use bevy::{prelude::*, sprite::Mesh2dHandle};
 use rand::{thread_rng, Rng};
@@ -11,19 +14,28 @@ pub enum BeeType {
     #[default]
     Baby,
     Regular,
-    Worker,
-    Builder,
-    Defender,
+    Worker(u32),
+    Defender(u32),
     Queen,
 }
 
+pub const MAX_DEFENDER_LEVEL: u32 = 3;
+pub const MAX_WORKER_LEVEL: u32 = 3;
+
 pub fn update_bee_material_system(
     mut commands: Commands,
-    mut bees: Query<(Entity, &BeeType), Changed<BeeType>>,
+    mut bees: Query<(Entity, &BeeType, Option<&Handle<UniversalMaterial>>), Changed<BeeType>>,
     mut materials: ResMut<Assets<UniversalMaterial>>,
 ) {
-    for (e, bee) in bees.iter_mut() {
-        commands.entity(e).insert(materials.add(bee.clone().into()));
+    for (e, bee, material) in bees.iter_mut() {
+        let mut new_material: UniversalMaterial = bee.clone().into();
+        if let Some(material) = material {
+            if let Some(material) = materials.get(material) {
+                new_material.props.upgrade_time = material.props.upgrade_time;
+                new_material.props.damage_time = material.props.damage_time;
+            }
+        }
+        commands.entity(e).insert(materials.add(new_material));
     }
 }
 
@@ -51,7 +63,7 @@ impl From<(BeeType, Vec2)> for BeeBundle {
         BeeBundle {
             visiblity: VisibilityBundle::default(),
             transform: TransformBundle::from_transform(Transform::from_translation(
-                position.extend(thread_rng().gen_range(0.0..1.0))
+                position.extend(thread_rng().gen_range(0.0..1.0)),
             )),
             mesh: Mesh2dHandle(BEE_MESH),
             bee_type,

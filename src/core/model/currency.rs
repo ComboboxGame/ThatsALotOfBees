@@ -1,3 +1,5 @@
+use crate::utils;
+
 use super::BeeType;
 use bevy::{prelude::*, utils::HashMap};
 use rand::{thread_rng, Rng};
@@ -50,23 +52,36 @@ pub struct CurrencyStorage {
 
 impl CurrencyStorage {
     pub fn check_can_spend(&self, price: &CurrencyValues) -> bool {
-        self.stored.iter().enumerate().all(|(i, stored)| *stored >= price[i])
+        self.stored
+            .iter()
+            .enumerate()
+            .all(|(i, stored)| *stored >= price[i])
     }
 
     pub fn spend(&mut self, price: &CurrencyValues) {
-        self.stored.iter_mut().enumerate().for_each(|(i, stored)| *stored -= price[i])
+        self.stored
+            .iter_mut()
+            .enumerate()
+            .for_each(|(i, stored)| *stored -= price[i])
     }
 
     pub fn gain(&mut self, price: &CurrencyValues) {
-        self.stored.iter_mut().enumerate().for_each(|(i, stored)| *stored += price[i])
+        self.stored
+            .iter_mut()
+            .enumerate()
+            .for_each(|(i, stored)| *stored += price[i])
     }
 }
 
 impl Default for CurrencyStorage {
     fn default() -> Self {
         Self {
-            stored: [30; CURRENCY_NUM],
-            max_stored: [30; CURRENCY_NUM],
+            stored: if utils::is_local_build() {
+                [1000, 1000, 1000]
+            } else {
+                [0; CURRENCY_NUM]
+            },
+            max_stored: [5000, 1000000, 1000000],
             estimated_inflow: [0; CURRENCY_NUM],
         }
     }
@@ -86,13 +101,17 @@ pub fn gain_system(
 ) {
     currency.estimated_inflow = [0; CURRENCY_NUM];
     for mut gainer in gainers.iter_mut() {
-        currency.estimated_inflow.iter_mut().enumerate().for_each(|(i, v)| *v += gainer.gain[i]);
+        currency
+            .estimated_inflow
+            .iter_mut()
+            .enumerate()
+            .for_each(|(i, v)| *v += gainer.gain[i]);
 
         gainer.time_since_minute_start += time.delta_seconds();
         let t = gainer.time_since_minute_start as f64;
 
         let new_gained_this_minute = gainer.gain.map(|g| ((g as f64) * t / 60.0) as u64);
-        
+
         for i in 0..CURRENCY_NUM {
             let new_gain = new_gained_this_minute[i].min(gainer.gain[i]);
             if new_gain > gainer.gained_this_minute[i] {
@@ -119,18 +138,16 @@ impl From<BeeType> for CurrencyGainPerMinute {
                 gain: [2, 0, 0],
                 ..Default::default()
             },
-            BeeType::Worker => CurrencyGainPerMinute {
-                gain: [8, 2, 0],
+            BeeType::Worker(lvl) => CurrencyGainPerMinute {
+                // todo: depends on lvl
+                gain: [[8, 2, 0], [12, 4, 0], [20, 6, 0]][lvl as usize],
                 ..Default::default()
             },
-            BeeType::Builder => CurrencyGainPerMinute {
-                ..Default::default()
-            },
-            BeeType::Defender => CurrencyGainPerMinute {
+            BeeType::Defender(lvl) => CurrencyGainPerMinute {
                 ..Default::default()
             },
             BeeType::Queen => CurrencyGainPerMinute {
-                gain: [4, 0, 0],
+                gain: [4, 1, 0],
                 ..Default::default()
             },
         }

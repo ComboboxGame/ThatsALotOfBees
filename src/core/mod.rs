@@ -26,6 +26,7 @@ pub enum AppState {
 pub const COMMON_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(1312296983110122547);
 pub const UVDXDY_COMMON_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(1212291923110122247);
 pub const BEE_COMMON_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(1412291983110122547);
+pub const FONT_HANDLE: Handle<Font> = Handle::weak_from_u128(1412221983110122547);
 
 impl Plugin for CorePlugin {
     fn build(&self, app: &mut App) {
@@ -55,9 +56,33 @@ impl Plugin for CorePlugin {
         app.add_plugins(UiPlugin);
         app.add_plugins(ModelPlugin);
 
+        app.add_systems(Update, font_loader);
+
         app.add_systems(
             Update,
             in_game_camera_system.run_if(in_state(AppState::InGame)),
         );
+    }
+}
+
+pub fn font_loader(
+    asset_server: Res<AssetServer>,
+    mut fonts: ResMut<Assets<Font>>,
+    mut font: Local<Handle<Font>>,
+    mut ready: Local<bool>,
+) {
+    if *ready {
+        return;
+    }
+
+    if *font == Handle::default() {
+        *font = asset_server.load("fonts/main.ttf");
+    }
+
+    let is_ready = fonts.get(font.clone()).is_some();
+    if is_ready {
+        let font = fonts.get(font.clone()).unwrap().clone();
+        fonts.insert(FONT_HANDLE, font);
+        *ready = true;
     }
 }

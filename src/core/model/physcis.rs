@@ -32,19 +32,13 @@ impl From<BeeType> for RigidBody {
                 max_acceleartion: 250.0,
                 ..Default::default()
             },
-            BeeType::Worker => RigidBody {
+            BeeType::Worker(lvl) => RigidBody {
                 radius: 8.0,
                 max_valocity: 40.0,
                 max_acceleartion: 250.0,
                 ..Default::default()
             },
-            BeeType::Builder => RigidBody {
-                radius: 8.0,
-                max_valocity: 40.0,
-                max_acceleartion: 250.0,
-                ..Default::default()
-            },
-            BeeType::Defender => RigidBody {
+            BeeType::Defender(lvl) => RigidBody {
                 radius: 8.0,
                 max_valocity: 40.0,
                 max_acceleartion: 250.0,

@@ -58,7 +58,8 @@ impl From<BeeType> for UniversalBehaviour {
                 min_healthpoints_before_run_away: 0,
                 time_since_last_refresh: 0.0,
             },
-            BeeType::Worker => UniversalBehaviour {
+            BeeType::Worker(lvl) => UniversalBehaviour {
+                // todo: depends on lvl?
                 max_wonder_distance_to_hive: 340.0,
                 min_wonder_distance_to_hive: 110.0,
                 min_wonder_distance: 100.0,
@@ -70,8 +71,8 @@ impl From<BeeType> for UniversalBehaviour {
                 min_healthpoints_before_run_away: 100,
                 time_since_last_refresh: 0.0,
             },
-            BeeType::Builder => todo!(),
-            BeeType::Defender => UniversalBehaviour {
+            BeeType::Defender(lvl) => UniversalBehaviour {
+                // todo: depends on lvl?
                 max_wonder_distance_to_hive: 220.0,
                 min_wonder_distance_to_hive: 110.0,
                 min_wonder_distance: 80.0,
@@ -252,8 +253,6 @@ pub fn universal_behaviour_system(
         }
 
         let enemy_attack_radius = if is_alert {
-
-            println!("Alert!");
             behaviour.enemy_attack_radius_if_alerted
         } else {
             behaviour.enemy_attack_radius

@@ -87,9 +87,8 @@ impl From<BeeType> for UniversalMaterial {
 
         let (overlay_x, overlay_y) = match kind {
             BeeType::Regular => (0, 2),
-            BeeType::Worker => (0, 3),
-            BeeType::Defender => (0, 4),
-            BeeType::Builder => (0, 5),
+            BeeType::Worker(lvl) => (lvl, 3),
+            BeeType::Defender(lvl) => (lvl, 4),
             BeeType::Baby => (7, 7),
             BeeType::Queen => (7, 7),
         };

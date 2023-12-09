@@ -1,8 +1,10 @@
-use crate::core::{spawn_hive_visual, AppState, CorePlugin};
+use crate::core::{AppState, CorePlugin};
 
 use bevy::{
+    ecs::schedule::IntoSystemConfigs,
     prelude::*,
     render::texture::{ImageFilterMode, ImageSamplerDescriptor},
+    sprite::Mesh2dHandle, asset::AssetLoader,
 };
 use levels::{LevelsPlugin, Scenario0};
 use utils::FpsPlugin;
@@ -25,14 +27,15 @@ fn main() {
     .add_plugins(CorePlugin)
     .add_plugins(LevelsPlugin);
 
-    app.add_systems(Startup, camera_setup);
+    app.add_systems(Startup, (camera_setup, preload_assets));
 
-    //if utils::is_local_build() {
-    app.add_plugins(FpsPlugin);
-    app.add_systems(Startup, setup);
-    app.world.spawn(Scenario0::default());
-    //} else {
-    //}
+    app.add_systems(PostUpdate, cleanup.run_if(state_changed::<AppState>()));
+
+    if utils::is_local_build() {
+        app.add_plugins(FpsPlugin);
+        app.add_systems(Startup, go_to_game_immediately);
+        app.add_systems(Update, state_debug_system);
+    }
 
     app.run();
 }
@@ -44,22 +47,54 @@ fn camera_setup(mut commands: Commands) {
     });
 }
 
-fn setup(
+pub fn cleanup(
+    everything: Query<Entity, Or<(With<Mesh2dHandle>, With<Style>)>>,
+    other: Query<Entity, (Without<Mesh2dHandle>, Without<Style>)>,
+
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    mut asset_server: ResMut<AssetServer>,
-    mut next_state: ResMut<NextState<AppState>>,
-    mut clear_color: ResMut<ClearColor>,
 ) {
+    println!("Cleanup");
+    for e in everything.iter() {
+        commands.entity(e).despawn();
+    }
+    for o in other.iter() {
+        println!("{:?}", o);
+    }
+}
+
+fn go_to_game_immediately(mut next_state: ResMut<NextState<AppState>>) {
+    println!("Go to game");
     next_state.set(AppState::InGame);
+}
 
-    spawn_hive_visual(
-        &mut commands,
-        &mut meshes,
-        &mut materials,
-        &mut asset_server,
-    );
+fn state_debug_system(
+    keys: Res<Input<KeyCode>>,
+    mut next_state: ResMut<NextState<AppState>>,
+    state: Res<State<AppState>>,
+) {
+    if keys.just_pressed(KeyCode::Q) {
+        match *state.get() {
+            AppState::InGame => {
+                next_state.set(AppState::MainMenu);
+            }
+            AppState::MainMenu => {
+                next_state.set(AppState::InGame);
+            }
+        }
+    }
+}
 
-    clear_color.0 = Color::WHITE;
+fn preload_assets(
+    asset_server: Res<AssetServer>,
+    mut bank: Local<Vec<Handle<Image>>>,
+) {
+    let names = vec![
+        "images/Tree.png",
+        "images/Clouds.png",
+        "images/Hills.png",
+    ];
+
+    for name in names {
+        bank.push(asset_server.load(name));
+    }
 }
