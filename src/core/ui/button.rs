@@ -1,7 +1,9 @@
-use crate::core::{CurrencyValue, CurrencyValues, FONT_HANDLE};
+use std::time::Duration;
+
+use crate::core::{CurrencyValue, CurrencyValues, SoundCounter, FONT_HANDLE};
 
 use super::{constants, RelativePixelFont, RelativePixelPositioned, RelativePixelSized};
-use bevy::{prelude::*, ui::FocusPolicy};
+use bevy::{prelude::*, ui::FocusPolicy, utils::Instant};
 
 #[derive(Component, Default)]
 pub struct MyButton {
@@ -131,14 +133,18 @@ pub fn button_click_sound(
     asset_server: Res<AssetServer>,
     mut commands: Commands,
     buttons: Query<(&MyButton, &Interaction), Changed<Interaction>>,
+    mut sound_counter: ResMut<SoundCounter>,
 ) {
-    for (button, interaction) in buttons.iter() {
-        if button.enabled {
-            if *interaction == Interaction::Pressed {
-                commands.spawn(AudioBundle {
-                    source: asset_server.load("audio/button.ogg"),
-                    ..Default::default()
-                });
+    if Instant::now().duration_since(sound_counter.last_played) > Duration::from_millis(500) {
+        for (button, interaction) in buttons.iter() {
+            if button.enabled {
+                if *interaction == Interaction::Pressed {
+                    commands.spawn(AudioBundle {
+                        source: asset_server.load("audio/button.ogg"),
+                        ..Default::default()
+                    });
+                    sound_counter.last_played = Instant::now();
+                }
             }
         }
     }
