@@ -1,5 +1,5 @@
 use self::{
-    button::{button_hover, EnableButtonWhenHaveMoney, MyButton},
+    button::{button_hover, EnableButtonWhenHaveMoney, MyButton, button_click_sound},
     counter::{setup_bee_counters, update_counter},
     currency_display::{refresh_display, spawn_currency_display},
     menu::{click_button_system, menu_helper, menu_update, spawn_menu, Menu},
@@ -71,6 +71,7 @@ impl Plugin for UiPlugin {
                 button_hover,
                 refresh_display,
                 click_button_system,
+                button_click_sound,
             )
                 .run_if(in_state(AppState::InGame)),
         );
