@@ -6,6 +6,7 @@ mod input;
 mod model;
 mod navigation;
 mod ui;
+mod audio;
 
 pub use builder::*;
 pub use camera::*;
@@ -13,6 +14,7 @@ pub use input::*;
 pub use model::*;
 pub use navigation::*;
 pub use ui::*;
+pub use audio::*;
 
 pub struct CorePlugin;
 
@@ -57,6 +59,7 @@ impl Plugin for CorePlugin {
         app.add_plugins(ModelPlugin);
 
         app.add_systems(Update, font_loader);
+        app.add_systems(Startup, play_background_audio);
 
         app.add_systems(
             Update,

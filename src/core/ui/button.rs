@@ -126,3 +126,20 @@ pub fn button_hover(
         }
     }
 }
+
+pub fn button_click_sound(
+    asset_server: Res<AssetServer>,
+    mut commands: Commands,
+    buttons: Query<(&MyButton, &Interaction), Changed<Interaction>>,
+) {
+    for (button, interaction) in buttons.iter() {
+        if button.enabled {
+            if *interaction == Interaction::Pressed {
+                commands.spawn(AudioBundle {
+                    source: asset_server.load("audio/button.ogg"),
+                    ..Default::default()
+                });
+            }
+        }
+    }
+}
