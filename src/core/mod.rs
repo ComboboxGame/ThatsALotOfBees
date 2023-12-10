@@ -57,9 +57,9 @@ impl Plugin for CorePlugin {
         app.add_plugins(NavigationPlugin);
         app.add_plugins(UiPlugin);
         app.add_plugins(ModelPlugin);
+        app.add_plugins(AudioPlugin);
 
         app.add_systems(Update, font_loader);
-        app.add_systems(Startup, play_background_audio);
 
         app.add_systems(
             Update,
