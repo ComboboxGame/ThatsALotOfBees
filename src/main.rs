@@ -33,9 +33,9 @@ fn main() {
 
     //if utils::is_local_build()
     {
-        app.add_plugins(FpsPlugin);
-        app.add_systems(Startup, go_to_game_immediately);
-        app.add_systems(Update, state_debug_system);
+        //app.add_plugins(FpsPlugin);
+        //app.add_systems(Startup, go_to_game_immediately);
+        //app.add_systems(Update, state_debug_system);
     }
 
     app.run();
@@ -72,7 +72,6 @@ pub fn cleanup(
 fn go_to_game_immediately(mut next_state: ResMut<NextState<AppState>>, mut commands: Commands) {
     println!("Go to game");
     next_state.set(AppState::InGame);
-    commands.spawn(Scenario0::default());
 }
 
 fn state_debug_system(
@@ -97,6 +96,7 @@ fn preload_assets(
     mut bank: Local<Vec<Handle<Image>>>,
 ) {
     let names = vec![
+        "images/MainBackground.png",
         "images/Tree.png",
         "images/Clouds.png",
         "images/Hills1.png",
@@ -105,7 +105,7 @@ fn preload_assets(
         "images/EnabledButton.png",
         "images/DisabledHoveredButton.png",
         "images/HoveredButton.png",
-        "images/NexusMenu.png",
+        "images/NexusMenu2.png",
         "images/MagicWaxReactorMenu.png",
         "images/WaxReactorMenu.png",
         "images/ArmoryMenu.png",

@@ -9,7 +9,7 @@ use crate::{
 use super::{
     currency, BeeType, BuildingMaterial, CurrencyGainPerMinute, CurrencyStorage, CurrencyValues,
     LivingCreature, RigidBody, UniversalBehaviour, UniversalMaterial, MAX_DEFENDER_LEVEL,
-    MAX_WORKER_LEVEL,
+    MAX_WORKER_LEVEL, GameInfo,
 };
 
 pub const HIVE_WORLD_SIZE: f32 = 320.0;
@@ -55,7 +55,7 @@ impl BuildingKind {
     pub fn get_menu_image(&self) -> &'static str {
         match self {
             BuildingKind::None => "images/None.png",
-            BuildingKind::Nexus => "images/NexusMenu.png",
+            BuildingKind::Nexus => "images/NexusMenu2.png",
             BuildingKind::Storage => "images/None.png",
             BuildingKind::WaxReactor => "images/WaxReactorMenu.png",
             BuildingKind::Armory => "images/ArmoryMenu.png",
@@ -66,6 +66,7 @@ impl BuildingKind {
     pub fn get_menu_size(&self) -> (u32, u32) {
         match self {
             BuildingKind::Workshop | BuildingKind::Armory => (114, 28 * 3 + 1),
+            BuildingKind::Nexus => (114, 28 + 1),
             _ => (114, 28 * 2 + 1),
         }
     }
@@ -145,10 +146,10 @@ impl HiveBuildings {
             BuildingKind::None => CurrencyValues::default(),
             BuildingKind::Nexus => CurrencyValues::default(),
             BuildingKind::Workshop => [8, 2, 0],
-            BuildingKind::Armory => [8, 8, 0],
-            BuildingKind::Storage => [50, 10, 0],
-            BuildingKind::WaxReactor => [99, 19, 0],
-            BuildingKind::MagicWaxReactor => [0, 99, 19],
+            BuildingKind::Armory => [16, 2, 0],
+            BuildingKind::Storage => [100, 19, 0],
+            BuildingKind::WaxReactor => [199, 9, 0],
+            BuildingKind::MagicWaxReactor => [0, 199, 9],
         }
     }
 
@@ -171,7 +172,7 @@ impl HiveBuildings {
     pub fn get_order_cost(&self, kind: BuildingKind) -> CurrencyValues {
         match kind {
             BuildingKind::None => CurrencyValues::default(),
-            BuildingKind::Nexus => [1, 0, 0],
+            BuildingKind::Nexus => [2, 0, 0],
             BuildingKind::Storage => CurrencyValues::default(),
             BuildingKind::Armory => [
                 0,
@@ -179,12 +180,12 @@ impl HiveBuildings {
                 1 * (self.defender_lvl + 1) as u64,
             ],
             BuildingKind::Workshop => [
-                4 * (self.worker_lvl + 1) as u64,
-                1 * (self.worker_lvl + 1) as u64,
+                [6, 14, 30][self.worker_lvl as usize],
+                [1, 2, 4][self.worker_lvl as usize],
                 0,
             ],
-            BuildingKind::WaxReactor => [40, 4, 0],
-            BuildingKind::MagicWaxReactor => [160, 0, 4],
+            BuildingKind::WaxReactor => [50, 16, 0],
+            BuildingKind::MagicWaxReactor => [200, 0, 16],
         }
     }
 
@@ -196,12 +197,12 @@ impl HiveBuildings {
             BuildingKind::Armory => [
                 0,
                 24 * (self.defender_lvl + 1) as u64,
-                8 * (self.defender_lvl + 1) as u64,
+                4 * (self.defender_lvl + 1) as u64,
             ],
             BuildingKind::Workshop => [
                 0,
                 16 * (self.worker_lvl + 1) as u64,
-                8 * (self.worker_lvl + 1) as u64,
+                4 * (self.worker_lvl + 1) as u64,
             ],
             BuildingKind::WaxReactor => CurrencyValues::default(),
             BuildingKind::MagicWaxReactor => CurrencyValues::default(),
@@ -219,7 +220,7 @@ impl HiveBuildings {
     }
 
     pub fn get_max_honey(&self) -> u64 {
-        50 + (self.storages * 50) as u64
+        100 + (self.storages * 100) as u64
     }
 
     pub fn get_max_storages(&self) -> u32 {
@@ -309,7 +310,7 @@ pub fn update_buildings_system(
                 kind: buildings.buildings[index],
                 index,
                 order_time: if buildings.buildings[index] == BuildingKind::Nexus {
-                    3.0
+                    2.5 // todo: ok ok not 3 sec
                 } else {
                     5.0
                 },
@@ -349,10 +350,14 @@ pub fn buildings_system(
     )>,
     mut materials: ResMut<Assets<UniversalMaterial>>,
     time: Res<Time>,
+    game: Res<GameInfo>,
     mut rng: Local<Option<StdRng>>,
     mut currency: ResMut<CurrencyStorage>,
     mut hive_buildings: ResMut<HiveBuildings>,
 ) {
+    if game.paused {
+        return;
+    }
     if rng.is_none() {
         *rng = Some(StdRng::seed_from_u64(0));
     }

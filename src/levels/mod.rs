@@ -3,7 +3,7 @@ use rand::{thread_rng, Rng};
 
 use crate::core::{
     EnemyType, Faction, LivingCreature, MoveToNavigationTargetBehaviour, NavigationResult,
-    NavigationTarget, RigidBody, SmartOrientation, UniversalBehaviour, MAX_VIEW_RECT,
+    NavigationTarget, RigidBody, SmartOrientation, UniversalBehaviour, MAX_VIEW_RECT, GameInfo,
 };
 pub struct LevelsPlugin;
 
@@ -19,13 +19,21 @@ pub struct Scenario0 {
     pub wave: usize,
 }
 
+#[derive(Component)]
+pub struct NextWave;
+
 pub fn scenario0_system(
     mut scenarios: Query<(Entity, &mut Scenario0)>,
     enemis: Query<&EnemyType>,
     time: Res<Time>,
+    game: Res<GameInfo>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
+    mut next_wave: Query<&mut Text, With<NextWave>>,
 ) {
+    if game.paused {
+        return;
+    }
     if scenarios.is_empty() {
         return;
     }
@@ -33,10 +41,17 @@ pub fn scenario0_system(
     let (_, mut scenario) = scenarios.single_mut();
 
     if enemis.is_empty() {
+        for mut text in next_wave.iter_mut() {
+            text.sections[0].value = format!("Next wave in {}...", 40 - scenario.time_elapsed as i32);
+        }
         scenario.time_elapsed += time.delta_seconds();
+    } else {
+        for mut text in next_wave.iter_mut() {
+            text.sections[0].value = format!("Wave {}", scenario.wave);
+        }
     }
 
-    if scenario.time_elapsed < 60.0 {
+    if scenario.time_elapsed < 40.0 {
         return;
     }
 
@@ -44,39 +59,147 @@ pub fn scenario0_system(
 
     let waves = vec![
         vec![
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 1, 10),
         ],
         vec![
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 2, 10),
+            (EnemyType::Wasp(0), 2, 10),
         ],
         vec![
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(0), 2, 8),
+            (EnemyType::Wasp(0), 2, 8),
+            (EnemyType::Wasp(0), 2, 8),
+            (EnemyType::Wasp(1), 4, 8),
         ],
         vec![
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
+            (EnemyType::Wasp(1), 2, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 2, 10),
         ],
         vec![
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
-            (EnemyType::Wasp(0), 0),
+            (EnemyType::Birb(0), 8, 20),
+            (EnemyType::Wasp(0), 2, 10),
+            (EnemyType::Wasp(0), 2, 10),
+        ],
+        vec![
+            (EnemyType::Birb(0), 8, 20),
+            (EnemyType::Wasp(1), 2, 10),
+            (EnemyType::Wasp(1), 2, 10),
+            (EnemyType::Wasp(1), 2, 10),
+        ],
+        vec![
+            (EnemyType::Bumble(0), 16, 20),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+        ],
+        vec![
+            (EnemyType::Birb(1), 8, 20),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+        ],
+        vec![
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+        ],
+        vec![
+            (EnemyType::Bumble(0), 16, 20),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+        ],
+        vec![
+            (EnemyType::Birb(2), 32, 20),
+            (EnemyType::Birb(2), 32, 20),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+        ],
+        vec![
+            (EnemyType::Bumble(2), 32, 20),
+            (EnemyType::Bumble(2), 32, 20),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+        ],
+        vec![
+            (EnemyType::Bumble(2), 32, 20),
+            (EnemyType::Bumble(2), 32, 20),
+            (EnemyType::Birb(2), 32, 20),
+            (EnemyType::Birb(2), 32, 20),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+        ],
+        vec![
+            (EnemyType::Bumble(2), 32, 20),
+            (EnemyType::Bumble(2), 32, 20),
+            (EnemyType::Birb(2), 32, 20),
+            (EnemyType::Birb(2), 32, 20),
+            (EnemyType::Bumble(1), 32, 20),
+            (EnemyType::Bumble(1), 32, 20),
+            (EnemyType::Birb(1), 32, 20),
+            (EnemyType::Birb(1), 32, 20),
+            (EnemyType::Bumble(0), 32, 20),
+            (EnemyType::Bumble(0), 32, 20),
+            (EnemyType::Birb(0), 32, 20),
+            (EnemyType::Birb(0), 32, 20),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
+            (EnemyType::Wasp(1), 4, 10),
         ],
     ];
 
-    for (enemy, drop) in waves[scenario.wave].iter() {
-        spawn_enemy(&mut commands, *enemy, &mut meshes, *drop);
+    for (enemy, drop, drop2) in waves[scenario.wave].iter() {
+        spawn_enemy(&mut commands, *enemy, &mut meshes, *drop, *drop2);
     }
 
     if scenario.wave + 1 < waves.len() {
@@ -93,7 +216,7 @@ fn get_size(value: EnemyType) -> f32 {
     }
 }
 
-fn spawn_enemy(commands: &mut Commands, enemy: EnemyType, meshes: &mut Assets<Mesh>, drop: u32) {
+fn spawn_enemy(commands: &mut Commands, enemy: EnemyType, meshes: &mut Assets<Mesh>, drop: u32, drop2: u32) {
     let dx = thread_rng().gen_range(-1.0..1.0);
     let dy = thread_rng().gen_range(-1.0..1.0);
     let z = thread_rng().gen_range(0.0..1.0);
@@ -117,7 +240,7 @@ fn spawn_enemy(commands: &mut Commands, enemy: EnemyType, meshes: &mut Assets<Me
         Mesh2dHandle(meshes.add(Quad::new(Vec2::splat(get_size(enemy))).into())),
         enemy,
         LivingCreature {
-            currency_drop: [0, 0, drop as u64],
+            currency_drop: [drop2 as u64, 0, drop as u64],
             ..LivingCreature::from(enemy)
         },
         RigidBody::from(enemy),

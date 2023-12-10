@@ -1,6 +1,6 @@
 use crate::utils;
 
-use super::BeeType;
+use super::{BeeType, GameInfo};
 use bevy::{prelude::*, utils::HashMap};
 use rand::{thread_rng, Rng};
 use strum::IntoEnumIterator;
@@ -78,11 +78,11 @@ impl Default for CurrencyStorage {
         Self {
             stored: if utils::is_local_build() {
                 //[1000, 1000, 1000]
-                [5, 0, 0]
+                [20, 0, 0]
             } else {
-                [0; CURRENCY_NUM]
+                [20, 0, 0]
             },
-            max_stored: [50, 1000000, 1000000],
+            max_stored: [100, 1000000, 1000000],
             estimated_inflow: [0; CURRENCY_NUM],
         }
     }
@@ -99,7 +99,11 @@ pub fn gain_system(
     mut currency: ResMut<CurrencyStorage>,
     mut gainers: Query<&mut CurrencyGainPerMinute>,
     time: Res<Time>,
+    game: Res<GameInfo>,
 ) {
+    if game.paused {
+        return;
+    }
     currency.estimated_inflow = [0; CURRENCY_NUM];
     for mut gainer in gainers.iter_mut() {
         currency
@@ -136,19 +140,19 @@ impl From<BeeType> for CurrencyGainPerMinute {
                 ..Default::default()
             },
             BeeType::Regular => CurrencyGainPerMinute {
-                gain: [2, 0, 0],
+                gain: [1, 0, 0],
                 ..Default::default()
             },
             BeeType::Worker(lvl) => CurrencyGainPerMinute {
                 // todo: depends on lvl
-                gain: [[8, 2, 0], [12, 4, 0], [20, 6, 0]][lvl as usize],
+                gain: [[5, 3, 0], [10, 6, 0], [20, 12, 0]][lvl as usize],
                 ..Default::default()
             },
             BeeType::Defender(lvl) => CurrencyGainPerMinute {
                 ..Default::default()
             },
             BeeType::Queen => CurrencyGainPerMinute {
-                gain: [4, 1, 0],
+                gain: [12, 12, 0],
                 ..Default::default()
             },
         }

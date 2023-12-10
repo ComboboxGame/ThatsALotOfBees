@@ -5,7 +5,7 @@ use bevy::{
 
 use crate::utils::FlatProvider;
 
-use super::{BackgroundVisual, BackgroundVisual2, BackgroundVisual1};
+use super::{BackgroundVisual, BackgroundVisual2, BackgroundVisual1, GameInfo};
 
 pub const MAX_VIEW_RECT: Rect = Rect {
     min: Vec2::new(-900.0, -500.0),
@@ -16,7 +16,7 @@ pub const MAX_VIEW_RECT_SOFT: Rect = Rect {
     max: Vec2::new(850.0, 450.0),
 };
 
-fn get_view_rect(camera: &Camera, camera_transform: &Transform) -> Rect {
+pub fn get_view_rect(camera: &Camera, camera_transform: &Transform) -> Rect {
     let matrix = camera_transform.compute_matrix() * camera.projection_matrix().inverse();
 
     let max = matrix.project_point3(Vec2::ONE.extend(-1.0)).flat();
@@ -36,7 +36,7 @@ fn get_view_rect(camera: &Camera, camera_transform: &Transform) -> Rect {
     }
 }
 
-fn clamp_to_rect(pos: Vec2, view_half_size: Vec2, rect: Rect, factor: f32) -> Vec2 {
+pub fn clamp_to_rect(pos: Vec2, view_half_size: Vec2, rect: Rect, factor: f32) -> Vec2 {
     [0, 1]
         .map(|i| {
             if rect.min[i] * factor + view_half_size[i] >= rect.max[i] * factor - view_half_size[i]

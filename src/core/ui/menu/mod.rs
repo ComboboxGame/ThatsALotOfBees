@@ -1,5 +1,5 @@
 use crate::core::{
-    get_building_image_name, Building, BuildingKind, HiveBuildings, UniversalMaterial,
+    get_building_image_name, Building, BuildingKind, HiveBuildings, UniversalMaterial, GameInfo,
 };
 
 use self::{
@@ -193,7 +193,11 @@ pub fn click_button_system(
     >,
     mut buildings: Query<&mut Building>,
     mut hive_buildings: ResMut<HiveBuildings>,
+    game: Res<GameInfo>,
 ) {
+    if game.paused {
+        return;
+    }
     for (
         interaction,
         mut prev_interaction,

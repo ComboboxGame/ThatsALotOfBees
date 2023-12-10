@@ -8,6 +8,7 @@ use super::{BeeType, EnemyType, RigidBody, UniversalMaterial, CurrencyValue, Cur
 pub struct LivingCreature {
     pub time_alive: f32,
 
+    pub max_health: i32,
     pub health: i32,
 
     pub attack_damage: u32,
@@ -28,6 +29,7 @@ impl Default for LivingCreature {
         Self {
             time_alive: Default::default(),
             health: Default::default(),
+            max_health: Default::default(),
             attack_damage: Default::default(),
             attack_cooldown: 10.0,
             attack_radius: 14.0,
@@ -54,11 +56,11 @@ impl LivingCreature {
             other.health -= self.attack_damage as i32;
             self.time_since_last_attack = 0.0;
             other.time_since_last_damage_taken = 0.0;
-            other.accumulated_push_back +=
-                direction.normalize_or_zero() * (self.attack_damage as f32).powf(0.6).min(3.0);
-            self.accumulated_push_back -= direction.normalize_or_zero()
-                * (self.attack_damage as f32).powf(0.4).min(2.0)
-                * 0.8;
+
+            let pb = direction.normalize_or_zero() * (self.attack_damage as f32 / other.max_health as f32).min(1.0).powf(0.6).min(3.0);
+
+            other.accumulated_push_back += pb;
+            self.accumulated_push_back -= pb * 0.2;
         }
     }
 }
@@ -80,13 +82,13 @@ impl From<BeeType> for LivingCreature {
             },
             BeeType::Worker(lvl) => LivingCreature {
                 //todo:
-                health: 3 + 6 * lvl as i32,
+                health: 2 + 3 * lvl as i32,
                 attack_damage: 0,
                 attack_cooldown: 2.0,
                 ..Default::default()
             },
             BeeType::Defender(lvl) => LivingCreature {
-                health: 4 + 4 * lvl as i32,
+                health: 5 + 5 * lvl as i32,
                 attack_damage: 2 + 2 * lvl,
                 attack_cooldown: 2.5 - 0.6 * lvl as f32,
                 ..Default::default()
@@ -130,8 +132,9 @@ impl From<EnemyType> for LivingCreature {
 }
 
 #[derive(Resource, Default)]
-pub struct GameEnd {
+pub struct GameInfo {
     pub end: bool,
+    pub paused: bool,
 }
 
 pub fn living_creature_system(
@@ -146,8 +149,11 @@ pub fn living_creature_system(
     mut materials: ResMut<Assets<UniversalMaterial>>,
     mut commands: Commands,
     mut storage: ResMut<CurrencyStorage>,
-    mut game_end: ResMut<GameEnd>,
+    mut game_end: ResMut<GameInfo>,
 ) {
+    if game_end.paused {
+        return;
+    }
     for (e, mut creature, maybe_material, maybe_rb) in creatures.iter_mut() {
         if creature.time_since_last_damage_taken == 0.0 {
             if let Some(material) = maybe_material {
@@ -173,7 +179,7 @@ pub fn living_creature_system(
 
         if creature.is_dead() && creature.time_since_last_damage_taken > 0.8 {
             for i in 0..3 {
-                storage.stored[i] += creature.currency_drop[i];
+                storage.stored[i] = (storage.stored[i] + creature.currency_drop[i]).min(storage.max_stored[i]);
             }
             commands.entity(e).despawn();
             if creature.end_game_on_dead {

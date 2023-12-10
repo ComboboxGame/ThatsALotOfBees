@@ -4,7 +4,7 @@ use rand::{rngs::StdRng, Rng, SeedableRng};
 use crate::{
     core::{
         BeeType, EnemyType, Faction, HiveMap, LivingCreature, NavigationResult, NavigationTarget,
-        RigidBody,
+        RigidBody, GameInfo,
     },
     utils::FlatProvider,
 };
@@ -77,7 +77,7 @@ impl From<BeeType> for UniversalBehaviour {
                 min_wonder_distance_to_hive: 110.0,
                 min_wonder_distance: 80.0,
                 enemy_attack_distance_to_hive: 1000.0,
-                enemy_attack_radius: 100.0,
+                enemy_attack_radius: 160.0,
                 enemy_attack_radius_if_alerted: 1000.0,
                 alert_distance: 1000.0,
                 run_away_radius: 0.0,
@@ -189,9 +189,13 @@ pub fn universal_behaviour_system(
     )>,
     all: Query<(Entity, &LivingCreature, &Transform, &Faction)>,
     time: Res<Time>,
+    game: Res<GameInfo>,
     map: Res<HiveMap>,
     mut rng: Local<Option<StdRng>>,
 ) {
+    if game.paused {
+        return;
+    }
     if rng.is_none() {
         *rng = Some(StdRng::seed_from_u64(0));
     }
@@ -213,9 +217,9 @@ pub fn universal_behaviour_system(
         let should_refresh = match *navigation {
             NavigationTarget::None => true,
             NavigationTarget::Position(_) => {
-                result.is_reached() || behaviour.time_since_last_refresh > 1.0
+                result.is_reached() || behaviour.time_since_last_refresh > 0.5
             }
-            NavigationTarget::Entity(_, _) => behaviour.time_since_last_refresh > 1.0,
+            NavigationTarget::Entity(_, _) => behaviour.time_since_last_refresh > 0.5,
         };
 
         if !should_refresh {

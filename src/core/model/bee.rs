@@ -41,19 +41,19 @@ pub fn update_bee_material_system(
 
 #[derive(Bundle)]
 pub struct BeeBundle {
-    visiblity: VisibilityBundle,
-    transform: TransformBundle,
-    mesh: Mesh2dHandle,
-    bee_type: BeeType,
-    creature: LivingCreature,
-    rigid_body: RigidBody,
-    behaviour: UniversalBehaviour,
-    target: NavigationTarget,
-    result: NavigationResult,
-    move_behaviour: MoveToNavigationTargetBehaviour,
-    orientation: SmartOrientation,
-    faction: Faction,
-    gain: CurrencyGainPerMinute,
+    pub visiblity: VisibilityBundle,
+    pub transform: TransformBundle,
+    pub mesh: Mesh2dHandle,
+    pub bee_type: BeeType,
+    pub creature: LivingCreature,
+    pub rigid_body: RigidBody,
+    pub behaviour: UniversalBehaviour,
+    pub target: NavigationTarget,
+    pub result: NavigationResult,
+    pub move_behaviour: MoveToNavigationTargetBehaviour,
+    pub orientation: SmartOrientation,
+    pub faction: Faction,
+    pub gain: CurrencyGainPerMinute,
 }
 
 impl From<(BeeType, Vec2)> for BeeBundle {

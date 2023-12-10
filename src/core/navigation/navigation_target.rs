@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::utils::{dist_to_segment, FlatProvider};
+use crate::{utils::{dist_to_segment, FlatProvider}, core::GameInfo};
 
 use super::{HiveGraph, HIVE_GRAPH_RADIUS};
 
@@ -54,9 +54,13 @@ pub fn navigation_system(
     all_entities: Query<&Transform>,
     graph: Res<HiveGraph>,
     time: Res<Time>,
+    game: Res<GameInfo>,
     mut gizmos: Gizmos,
     keyboard: Res<Input<KeyCode>>,
 ) {
+    if game.paused {
+        return;
+    }
     if !graph.ready {
         return;
     }

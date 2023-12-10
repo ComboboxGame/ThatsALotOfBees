@@ -101,14 +101,14 @@ pub fn spawn_upgrage_menu(
             });
 
             let cost = hive_buildings.get_order_cost(kind);
-            let a = if cost[0] != 0 {
+            let mut a = if cost[0] != 0 {
                 Some(cost[0])
             } else if cost[1] != 0 {
                 Some(cost[1])
             } else {
                 Some(cost[2])
             };
-            let b = if cost[1] != 0 {
+            let mut b = if cost[1] != 0 && (cost[0] != 0) {
                 Some(cost[1])
             } else if cost[2] != 0 && (cost[1] != 0 || cost[0] != 0) {
                 Some(cost[2])
@@ -139,7 +139,7 @@ pub fn spawn_upgrage_menu(
                 },
             );
 
-            if kind != BuildingKind::WaxReactor && kind != BuildingKind::MagicWaxReactor {
+            if kind != BuildingKind::WaxReactor && kind != BuildingKind::MagicWaxReactor && kind != BuildingKind::Nexus {
                 let mut cost = hive_buildings.get_upgrade_cost(kind);
                 let mut a = if cost[0] != 0 {
                     Some(cost[0])

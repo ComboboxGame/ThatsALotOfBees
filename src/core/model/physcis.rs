@@ -5,7 +5,7 @@ use crate::{
     utils::FlatProvider,
 };
 
-use super::{BeeType, EnemyType, LivingCreature};
+use super::{BeeType, EnemyType, LivingCreature, GameInfo};
 
 #[derive(Component, Default)]
 pub struct RigidBody {
@@ -34,7 +34,7 @@ impl From<BeeType> for RigidBody {
             },
             BeeType::Worker(lvl) => RigidBody {
                 radius: 8.0,
-                max_valocity: 40.0,
+                max_valocity: 38.0,
                 max_acceleartion: 250.0,
                 ..Default::default()
             },
@@ -85,8 +85,12 @@ pub struct SmartOrientation;
 pub fn integration_system(
     mut rigid_bodies: Query<(&mut RigidBody, &mut Transform, Option<&LivingCreature>)>,
     time: Res<Time>,
+    game: Res<GameInfo>,
     map: Res<HiveMap>,
 ) {
+    if game.paused {
+        return;
+    }
     if !map.ready {
         return;
     }
@@ -132,8 +136,12 @@ pub fn collision_system(
     mut a_rigid_bodies: Query<(&mut RigidBody, &Transform, &LivingCreature), With<BeeType>>,
     mut b_rigid_bodies: Query<(&mut RigidBody, &Transform, &LivingCreature), Without<BeeType>>,
     time: Res<Time>,
+    game: Res<GameInfo>,
     _map: Res<HiveMap>,
 ) {
+    if game.paused {
+        return;
+    }
     for (mut arb, at, alc) in a_rigid_bodies.iter_mut() {
         if alc.is_dead() {
             continue;
@@ -145,7 +153,7 @@ pub fn collision_system(
                 continue;
             }
             let penetration = total_radius - dist_sqr.sqrt();
-            
+
             let ab = (bt.flat() - at.flat()).normalize();
 
             if penetration > 0.01 {
@@ -224,7 +232,11 @@ pub fn move_to_target_system(
         With<MoveToNavigationTargetBehaviour>,
     >,
     time: Res<Time>,
+    game: Res<GameInfo>,
 ) {
+    if game.paused {
+        return;
+    }
     for (mut rb, transform, result, creature) in agents.iter_mut() {
         if creature.is_dead() {
             continue;
