@@ -71,7 +71,7 @@ impl Plugin for UiPlugin {
                 button_hover,
                 refresh_display,
                 click_button_system,
-                button_click_sound,
+                // button_click_sound,
             )
                 .run_if(in_state(AppState::InGame)),
         );
