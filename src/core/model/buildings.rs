@@ -310,7 +310,7 @@ pub fn update_buildings_system(
                 kind: buildings.buildings[index],
                 index,
                 order_time: if buildings.buildings[index] == BuildingKind::Nexus {
-                    2.5 // todo: ok ok not 3 sec
+                    1.0 // todo: ok ok not 3 sec
                 } else {
                     5.0
                 },

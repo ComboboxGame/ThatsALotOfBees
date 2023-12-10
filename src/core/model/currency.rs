@@ -152,7 +152,7 @@ impl From<BeeType> for CurrencyGainPerMinute {
                 ..Default::default()
             },
             BeeType::Queen => CurrencyGainPerMinute {
-                gain: [12, 12, 0],
+                gain: [12, 8, 0],
                 ..Default::default()
             },
         }

@@ -1,7 +1,7 @@
 use crate::core::{CurrencyValue, CurrencyValues, FONT_HANDLE};
 
 use super::{constants, RelativePixelFont, RelativePixelPositioned, RelativePixelSized};
-use bevy::{prelude::*, ui::FocusPolicy};
+use bevy::{prelude::*, ui::FocusPolicy, audio::PlaybackMode};
 
 #[derive(Component, Default)]
 pub struct MyButton {
@@ -137,7 +137,10 @@ pub fn button_click_sound(
             if *interaction == Interaction::Pressed {
                 commands.spawn(AudioBundle {
                     source: asset_server.load("audio/button.ogg"),
-                    ..Default::default()
+                    settings: PlaybackSettings {
+                        mode: PlaybackMode::Despawn,
+                        ..default()
+                    }
                 });
             }
         }

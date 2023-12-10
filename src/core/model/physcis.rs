@@ -59,20 +59,20 @@ impl From<EnemyType> for RigidBody {
         match value {
             EnemyType::Wasp(lvl) => RigidBody {
                 radius: 9.0,
-                max_valocity: 35.0,
+                max_valocity: 45.0,
                 max_acceleartion: 300.0,
                 ..Default::default()
             },
             EnemyType::Birb(lvl) => RigidBody {
-                radius: 14.0,
-                max_valocity: 25.0,
-                max_acceleartion: 150.0,
+                radius: 13.0,
+                max_valocity: 45.0,
+                max_acceleartion: 350.0,
                 ..Default::default()
             },
             EnemyType::Bumble(lvl) => RigidBody {
-                radius: 14.0,
-                max_valocity: 15.0,
-                max_acceleartion: 50.0,
+                radius: 13.0,
+                max_valocity: 35.0,
+                max_acceleartion: 200.0,
                 ..Default::default()
             },
         }

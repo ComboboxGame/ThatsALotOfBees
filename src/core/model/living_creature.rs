@@ -70,12 +70,14 @@ impl From<BeeType> for LivingCreature {
         match value {
             BeeType::Baby => LivingCreature {
                 health: 1,
+                max_health: 1,
                 attack_damage: 0,
                 attack_cooldown: 0.0,
                 ..Default::default()
             },
             BeeType::Regular => LivingCreature {
                 health: 2,
+                max_health: 2,
                 attack_damage: 1,
                 attack_cooldown: 1.5,
                 ..Default::default()
@@ -83,18 +85,21 @@ impl From<BeeType> for LivingCreature {
             BeeType::Worker(lvl) => LivingCreature {
                 //todo:
                 health: 2 + 3 * lvl as i32,
+                max_health: 2 + 3 * lvl as i32,
                 attack_damage: 0,
                 attack_cooldown: 2.0,
                 ..Default::default()
             },
             BeeType::Defender(lvl) => LivingCreature {
                 health: 5 + 5 * lvl as i32,
-                attack_damage: 2 + 2 * lvl,
-                attack_cooldown: 2.5 - 0.6 * lvl as f32,
+                max_health: 5 + 5 * lvl as i32,
+                attack_damage: 2 + 1 * lvl,
+                attack_cooldown: 2.5 - 0.4 * lvl as f32,
                 ..Default::default()
             },
             BeeType::Queen => LivingCreature {
                 health: 100,
+                max_health: 100,
                 attack_damage: 4,
                 attack_cooldown: 1.5,
                 end_game_on_dead: true,
@@ -109,21 +114,24 @@ impl From<EnemyType> for LivingCreature {
         match value {
             EnemyType::Wasp(lvl) => LivingCreature {
                 health: 8 * (lvl + 1) as i32,
+                max_health:  8 * (lvl + 1) as i32,
                 attack_damage: 1 + lvl,
                 attack_cooldown: 2.0,
                 ..Default::default()
             },
             EnemyType::Birb(lvl) => LivingCreature {
                 health: [40, 120, 240][lvl as usize],
+                max_health:  [40, 120, 240][lvl as usize],
                 attack_damage: [8, 12, 16][lvl as usize],
-                attack_cooldown: 3.0,
+                attack_cooldown: 2.0,
                 attack_radius: 28.0,
                 ..Default::default()
             },
             EnemyType::Bumble(lvl) => LivingCreature {
                 health: [80, 160, 400][lvl as usize],
+                max_health:  [80, 160, 400][lvl as usize],
                 attack_damage: [16, 20, 40][lvl as usize],
-                attack_cooldown: 6.0,
+                attack_cooldown: 5.0,
                 attack_radius: 28.0,
                 ..Default::default()
             },
