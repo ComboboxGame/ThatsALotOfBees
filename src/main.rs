@@ -35,17 +35,18 @@ fn main() {
     {
         //app.add_plugins(FpsPlugin);
         //app.add_systems(Startup, go_to_game_immediately);
-        //app.add_systems(Update, state_debug_system);
-    }
+        //
+    }app.add_systems(Update, state_debug_system);
     
     app.run();
 }
 
-fn camera_setup(mut commands: Commands) {
+fn camera_setup(mut commands: Commands, mut color: ResMut<ClearColor>) {
     commands.spawn(Camera2dBundle {
         transform: Transform::from_scale(Vec3::splat(1.0 / 0.1)),
         ..default()
     });
+    *color = ClearColor(Color::WHITE);
 }
 
 pub fn cleanup(
