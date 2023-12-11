@@ -21,31 +21,31 @@ impl From<BeeType> for RigidBody {
     fn from(value: BeeType) -> Self {
         match value {
             BeeType::Baby => RigidBody {
-                radius: 6.0,
+                radius: 4.0,
                 max_valocity: 40.0,
                 max_acceleartion: 250.0,
                 ..Default::default()
             },
             BeeType::Regular => RigidBody {
-                radius: 8.0,
+                radius: 6.0,
                 max_valocity: 40.0,
                 max_acceleartion: 250.0,
                 ..Default::default()
             },
             BeeType::Worker(lvl) => RigidBody {
-                radius: 8.0,
+                radius: 6.0,
                 max_valocity: 38.0,
                 max_acceleartion: 250.0,
                 ..Default::default()
             },
             BeeType::Defender(lvl) => RigidBody {
-                radius: 8.0,
+                radius: 6.0,
                 max_valocity: 40.0,
                 max_acceleartion: 250.0,
                 ..Default::default()
             },
             BeeType::Queen => RigidBody {
-                radius: 10.0,
+                radius: 8.0,
                 max_valocity: 40.0,
                 max_acceleartion: 250.0,
                 ..Default::default()
@@ -156,19 +156,19 @@ pub fn collision_system(
 
             let ab = (bt.flat() - at.flat()).normalize();
 
-            if penetration > 0.01 {
-                arb.pseudo_velocity -= penetration / time.delta_seconds() * 0.2 * ab;
-                brb.pseudo_velocity += penetration / time.delta_seconds() * 0.2 * ab;
-            }
-
-
             let m1 = arb.radius.powi(2);
             let m2 = brb.radius.powi(2);
+
+            let effective_mass = 1.0 / (1.0 / m1 + 1.0 / m2);
+
+            if penetration > 0.01 {
+                arb.pseudo_velocity -= penetration / time.delta_seconds() * 0.2 * ab * effective_mass / m1;
+                brb.pseudo_velocity += penetration / time.delta_seconds() * 0.2 * ab * effective_mass / m2;
+            }
 
             let delta_velocity = ab.dot(arb.velocity - brb.velocity);
 
             if delta_velocity > 0.0 {
-                let effective_mass = 1.0 / (1.0 / m1 + 1.0 / m2);
                 let delta_impulse = delta_velocity * effective_mass;
                 arb.velocity -= delta_impulse * ab / m1;
                 brb.velocity += delta_impulse * ab / m2;

@@ -120,10 +120,10 @@ impl From<EnemyType> for LivingCreature {
                 ..Default::default()
             },
             EnemyType::Birb(lvl) => LivingCreature {
-                health: [40, 120, 240][lvl as usize],
-                max_health:  [40, 120, 240][lvl as usize],
+                health: [40, 100, 240][lvl as usize],
+                max_health:  [40, 100, 240][lvl as usize],
                 attack_damage: [8, 12, 16][lvl as usize],
-                attack_cooldown: 2.0,
+                attack_cooldown: 2.2,
                 attack_radius: 28.0,
                 ..Default::default()
             },
@@ -131,7 +131,7 @@ impl From<EnemyType> for LivingCreature {
                 health: [80, 160, 400][lvl as usize],
                 max_health:  [80, 160, 400][lvl as usize],
                 attack_damage: [16, 20, 40][lvl as usize],
-                attack_cooldown: 5.0,
+                attack_cooldown: 4.5,
                 attack_radius: 28.0,
                 ..Default::default()
             },

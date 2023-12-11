@@ -47,8 +47,8 @@ impl From<BeeType> for UniversalBehaviour {
                 time_since_last_refresh: 0.0,
             },
             BeeType::Regular => UniversalBehaviour {
-                max_wonder_distance_to_hive: 150.0,
-                min_wonder_distance_to_hive: 40.0,
+                max_wonder_distance_to_hive: 190.0,
+                min_wonder_distance_to_hive: 70.0,
                 min_wonder_distance: 60.0,
                 enemy_attack_distance_to_hive: 1000.0,
                 enemy_attack_radius: 40.0,
@@ -73,7 +73,7 @@ impl From<BeeType> for UniversalBehaviour {
             },
             BeeType::Defender(lvl) => UniversalBehaviour {
                 // todo: depends on lvl?
-                max_wonder_distance_to_hive: 220.0,
+                max_wonder_distance_to_hive: 230.0,
                 min_wonder_distance_to_hive: 110.0,
                 min_wonder_distance: 80.0,
                 enemy_attack_distance_to_hive: 1000.0,

@@ -145,7 +145,7 @@ impl From<BeeType> for CurrencyGainPerMinute {
             },
             BeeType::Worker(lvl) => CurrencyGainPerMinute {
                 // todo: depends on lvl
-                gain: [[5, 3, 0], [10, 6, 0], [20, 12, 0]][lvl as usize],
+                gain: [[5, 3, 0], [10, 6, 0], [20, 10, 0]][lvl as usize],
                 ..Default::default()
             },
             BeeType::Defender(lvl) => CurrencyGainPerMinute {

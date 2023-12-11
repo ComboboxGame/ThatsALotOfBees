@@ -338,10 +338,7 @@ fn buttons(
     
             let view_rect = get_view_rect(camera, &transform);
             let view_size = view_rect.max - view_rect.min;
-            transform.scale *= 1440.0 * 0.25 / view_size.y;
-            let view_rect = get_view_rect(camera, &transform);
-            let view_size = view_rect.max - view_rect.min;
-            transform.scale *= 2560.0 * 0.25 / view_size.x;
+            transform.scale *= (1440.0 * 0.25 / view_size.y).min(2560.0 * 0.25 / view_size.x);
         }
     }
 }
