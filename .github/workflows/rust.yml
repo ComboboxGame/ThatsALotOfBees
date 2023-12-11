@@ -29,7 +29,7 @@ jobs:
         git clone https://github.com/${{ github.repository }} build
         cd build
         git checkout gh-pages
-        del -r .\assets; cp -r "..\assets\!(*.psd)" .\assets 
+        del -r .\assets; cp -r ..\assets .\assets -Exclude '*.psd'
         del -r .\index.html; cp ..\index.html .
         del -r .\out; cp -r ..\out .\out
         git add .
