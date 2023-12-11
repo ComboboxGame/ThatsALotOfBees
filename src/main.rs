@@ -37,7 +37,7 @@ fn main() {
         //app.add_systems(Startup, go_to_game_immediately);
         //app.add_systems(Update, state_debug_system);
     }
-
+    
     app.run();
 }
 
